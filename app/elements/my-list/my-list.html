@@ -1,0 +1,70 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="my-list">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <ul>
+      <template is="dom-repeat" items="{{items}}" filter="{{search(filtro)}}">
+        <p>{{item}}</p>
+      </template>
+    </ul>
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        is: 'my-list',
+        properties: {
+          items: {
+            type: Array,
+            notify: true,
+          },
+          filtro: {
+            type: String,
+            notify: true,
+            value: "",
+            reflectToAttribute: true
+          },
+          inputs: {
+            type: "Object",
+            value: {filter:"String", items:"Object"},
+            readOnly: true
+          },
+          items: {
+            type: Object,
+            value: [
+              "Esto es una prueba",
+              "Esto es una prueba 2",
+              "Esto es una prueba 3",
+              "Esto es una prueba 4"
+            ]
+          }
+        },
+        search: function(filtro) {
+          return function(item) {
+            return item.toLowerCase().indexOf(filtro) > -1;
+          }
+        },
+        listenType: function(evento) {
+          console.log(evento); 
+        }
+      });
+    })();
+  </script>
+
+</dom-module>
