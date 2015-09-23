@@ -7,14 +7,6 @@
     $scope.input = "";
 
     $scope.elements = document.querySelector("#container").children;
-    for (var i = 0; i < $scope.elements.length; i++) {
-      if ( $scope.elements[i].properties.inputs) {
-        console.log("Inputs de ",  $scope.elements[i], " : ",  $scope.elements[i].properties.inputs.value);
-      }
-      if ( $scope.elements[i].properties.outputs) {
-        console.log("outputs de ",  $scope.elements[i], " : ",  $scope.elements[i].properties.outputs.value);
-      }
-    }
 
     $scope.addAttribute = function(element, attribute, value) {
       var objective = angular.element(element);
@@ -71,22 +63,21 @@
   }]);
 
 
-  /*app.directive("registerVariable", ["$rootScope", function($rootScope) {
+  app.directive("registerVariable", ["$rootScope", function($rootScope) {
     function compile(scope, element, attrs) {
-      var properties = {};
-      var polymerElement = element.$$element[0]
+      var polymerElement = element.$$element[0];
+
+      if (!$rootScope.binding) {
+       $rootScope.binding = {inputs: {}, outputs: {}};
+      }
+
       if (polymerElement.properties.inputs) {
-        var inputs = polymerElement.properties.inputs.value
+        $rootScope.binding.inputs[polymerElement.tagName] = polymerElement.properties.inputs.value;
       }
       if (polymerElement.properties.outputs) {
-        var outputs = polymerElement.properties.outputs.value
+        $rootScope.binding.outputs[polymerElement.tagName] = polymerElement.properties.outputs.value;
       }
-      
-      if (!$rootScope.binding) {
-       $rootScope.binding = {};
-      }
-      
     }
-    return {compile: compile, scope: true};
-  }]);*/
+    return {compile: compile};
+  }]);
 })();
