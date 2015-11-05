@@ -9,7 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<dom-module id="my-greeting">
+<dom-module id="input-text">
   <template>
     <style include="shared-styles"></style>
     <style>
@@ -17,10 +17,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
       }
     </style>
-    <h2 class="page-title"><span>{{greeting}}</span></h2>
-    <span class="paper-font-body2">Update text to change the greeting.</span>
-    <!-- Listens for "input" event and sets greeting to <input>.value -->
-    <input class="paper-font-body2" value="{{greeting::input}}" >
+    <br>
+<!--    <h2 class="page-title"><span>{{text}}</span></h2>-->
+    <span class="paper-font-body2">Input de texto</span>
+    <!-- Listens for "input" event and sets text to <input>.value -->
+    <input class="paper-font-body2" value="{{text::input}}" >
   </template>
 
   <script>
@@ -28,10 +29,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'use strict';
 
       Polymer({
-        is: 'my-greeting',
+        is: 'input-text',
 
         properties: {
-          greeting: {
+          text: {
             type: String,
             reflectToAttribute: true,
             notify: true,
@@ -40,11 +41,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           inputs: {
            type: Object,
            readOnly: true,
-           value: []
+           value: {}
           },
           outputs: {
             type: Object,
-            value: {greeting: "String"}
+            value: {text: "String"}
           }
         },
         _sendData: function (newValue, oldValue) {
