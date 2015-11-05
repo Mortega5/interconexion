@@ -7,15 +7,14 @@
 
     /* Lista de elementos que tenemos en el dashboard */
     $scope.elements = document.querySelector("#container").children;
-   
+
     $scope.interconexion = function(nameInput, nameOutput) {
       var splited = nameInput.split(" --> ");
       var element = document.querySelector(splited[0]);
       var attributeObjective = splited[1];
-      
       splited = nameOutput.split(" --> ");
-      
-      var prueba = $scope.pizarra[splited[0]][splited[1]].bindingAttr;
+      var bindingAttr = $scope.pizarra[splited[0]][splited[1]].bindingAttr;
+      $scope.addAttribute(element, attributeObjective, bindingAttr);
     };
    /**
      * @brief  Funcion para realizar el binding entre el atributo a conectar con otro. Requiere de la ayuda de angularjs para recompilar el elementoy realizarel binding
@@ -23,7 +22,7 @@
      * @param in String attribute Nombre del atributo sobre el que se el que se añade el binding
      * @param in String value Nombre de la variable sobre la que se publican los datos
      */
-    
+
     $scope.addAttribute = function(element, attribute, value) {
       
       // Temporal
@@ -34,7 +33,7 @@
       var $compile = injector.get("$compile");
       $compile(objective)(objective.scope());
     };
-    
+
     /**
      * @brief Devuelve si una lista esta vacia. Entendiendo como no vacía, si tiene atributos dentro.
      * @param in Object obj Objeto a comprobar si esta vacío.
@@ -66,7 +65,7 @@
 
       return true;
     };
-   
+
     /**
      * @brief Devuelve un Array de los elementos del objeto
      * @param in Object object Objeto del cual se quere obtener la lista de elementos no vacios.
