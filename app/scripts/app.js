@@ -16,7 +16,7 @@
       var bindingAttr = $scope.pizarra[splited[0]][splited[1]].bindingAttr;
       $scope.addAttribute(element, attributeObjective, bindingAttr);
     };
-   /**
+    /**
      * @brief  Funcion para realizar el binding entre el atributo a conectar con otro. Requiere de la ayuda de angularjs para recompilar el elementoy realizarel binding
      * @param in html_element element  Elemento sobre el que se añade
      * @param in String attribute Nombre del atributo sobre el que se el que se añade el binding
@@ -24,7 +24,7 @@
      */
 
     $scope.addAttribute = function(element, attribute, value) {
-      
+
       // Temporal
       var objective = angular.element(element);
       value = "{{" + value + "}}";
@@ -75,9 +75,9 @@
       var list = [];
       for (var key in object) {
         if (object.hasOwnProperty(key) && !$scope.isEmpty(object[key])) {
-            for (var attr in object[key]) {
-              list.push(key + " --> " + attr);
-            }
+          for (var attr in object[key]) {
+            list.push(key + " --> " + attr);
+          }
         }
       }
       return list;
@@ -132,27 +132,57 @@
 
 
   app.directive("registerVariable", ["$rootScope", "$compile", function($rootScope, $compile) {
-    function link(scope, element, attrs) {
+    function link(scope, element) {
 
       var isEmpty = function(obj) {
+
+        if (obj == null){
+          return true;
+        }
+        if (obj.length > 0) {
+          return false;
+        }
+        if (obj.length === 0){
+          return true;
+        }
         for (var key in obj) {
-          if(hasOwnProperty.call(obj, key)){
+          if (hasOwnProperty.call(obj, key)){
             return false;
           }
         }
+
         return true;
       };
+      /*FUTURE ¿utilizar esto en una factoria para generar mas estructurado los elementos añadidos a binding? */
       var polymerElement = element[0];
       /* 1) Para primera prueba: guardamos todos los datos en una variable, tanto inputs como outputs*/
       if (!$rootScope.binding) {
         $rootScope.binding = {inputs: {}, outputs: {}};
       }
 
-      if (polymerElement.properties.inputs) {
-        $rootScope.binding.inputs[polymerElement.tagName.toLowerCase()] = polymerElement.properties.inputs.value;
+      /* Nombramos al elemento por los atributos*/
+      var elementNameRegister = polymerElement.tagName.toLowerCase();
+      elementNameRegister += "_" + document.querySelectorAll(polymerElement.tagName).length;
+
+
+      /* @attrs: attributos de  input o outputs
+       * @name: una referencia al nombre del elemento dentro del dashboard
+       * indicando nombre de la etiqueta + nº de elementos con el mismo tag en el dashboard (id.unico)
+       * @element: referencia al elemento dentro del dashboard
+       */
+      if (polymerElement.properties.inputs && !isEmpty(polymerElement.properties.inputs.value)) {
+        $rootScope.binding.inputs[elementNameRegister] = {
+          attrs: polymerElement.properties.inputs.value,
+          element: element[0],
+          name: elementNameRegister
+        };
       }
-      if (polymerElement.properties.outputs) {
-        $rootScope.binding.outputs[polymerElement.tagName.toLowerCase()] = polymerElement.properties.outputs.value;
+      if (polymerElement.properties.outputs && !isEmpty(polymerElement.properties.outputs.value)) {
+        $rootScope.binding.outputs[elementNameRegister] = {
+          attrs: polymerElement.properties.inputs.value,
+          element: element[0],
+          name: elementNameRegister
+        };
       }
 
       /*2) Segundo modelo para intentar la idea de pizarra */
