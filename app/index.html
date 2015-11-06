@@ -68,20 +68,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <hr>
       <div>
         <p>Lista de atributos monitorizados</p>
-             
+
         <span>Elemento que proporciona datos </span><select name="listInput" ng-model="data.input">
-          <option value="">Seleciona el dato a conectar</option>
-          <option ng-repeat=" element in toList(binding.outputs)">{{element}}</option>
+        <option value="">Seleciona el dato a conectar</option>
+        <option ng-repeat=" element in binding.outputs._toList()">
+          <p>{{element.name}}</p>
+        </option>
         </select>
         <br><br>
         <span>Elementos que consumen datos</span><select name="listOutput" ng-model="data.output">
         <option value="">Seleciona el componente que admite el dato</option>
-        <option ng-repeat="element in toList(binding.inputs)">{{element}}</option>
+        <option ng-repeat="element in binding.inputs._toList()">{{element.name}}</option>
 
         </select>
         <option value></option>
       </div>
-      
+
       <button ng-click="interconexion(data.output, data.input)">
         Conectar
       </button>

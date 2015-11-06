@@ -36,5 +36,9 @@
   },
   "engines": {
     "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "grunt": "^0.4.5",
+    "grunt-ngdocs": "^0.2.9"
   }
 }
