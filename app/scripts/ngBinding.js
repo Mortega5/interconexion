@@ -5,23 +5,23 @@
   * @ngdoc object
   * @name ngBinding
   * @description
-  * 
+  *
   * # ngBinding
   *
   * The `ngBinding` provides the posibility to interconnect polymer element using directives.
-  * 
   *
-  * This module use a $rootScope with two main variables. `__binding` and `__blackboard`
+  *
+  * This module use a $rootScope with two main variables  `__binding`  and  `__blackboard`
   *
   * `Blackboard` will be used to register the producer element of data.
   *
   * `Binding` will have all the information about the elements that produce and consume data.
   *  
-  * 
-  *     <my-element bind-polymer register-variable></my-element>
-  * 
+  * <pre>
+  * <my-element bind-polymer register-variable></my-element>
+  * </pre>
   */ 
-		angular.module("ngBinding", ['ng']).
+		angular.module("ngBinding", ["ng"]).
 		/**
    * @ngdoc service
    * @name ngBinding.BindingFactory
@@ -85,31 +85,27 @@
     *
     * <pre>
     * BindingFactory: {
-    *		inputs: Object,
-    *		outputs: Object
+    *		inputs: {
+    *			_isEmpty: function(),
+		*			_toList: function(),
+		*			_getTypeOfAttr: function(elementTarget, attrToGet)
+		*		},
+    *		outputs: {
+    *			_isEmpty: function(),
+		*			_toList: function(),
+		*			_getTypeOfAttr: function(elementTarget, attrToGet),
+		*		},
 		*}
     * </pre>
-    *
-    *
     *	- **inputs**: is the list of the html elements with input attributes. This attributes consume data of someone type.
+    *	- **outputs**: is the list of html elements with output attributes. This attributes consume data of someone type.
+		*
+		* Either provides three auxiliar function to make easier access and check information about the inputs.
+    *	- `_isEmpty`:
+		*	- `_toList`:
+		*	- `_getTypeOfAttr`: .
     *
-		*		It provides three auxiliar function to make easier access and check information about the inputs.
     *
-		*		- `_isEmpty`:
-		*		- `_toList`:
-		*		- `_getTypeOfAttr`: .
-    *		
-		* 	<pre>
-    * 	BindingFactory: {
-    *			inputs: {
-		*				_isEmpty: function(){},
-		*				_toList: function(){},
-		*				_getTypeOfAttr: function(elementTarget, attrToGet){}
-		*			},
-    *			outputs: Object
-		*		}
-    * </pre>
-    * - **outputs**: is the list of html elements with output attributes. This attributes consume data of someone type.
     */
 
 				var BindingFactory = function() {
