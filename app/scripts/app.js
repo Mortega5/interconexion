@@ -46,6 +46,7 @@ module.factory("BindingFactory", function(){
     }
     return list;
   };
+
   // instantiate our initial object
   var BindingFactory = function() {
     this.inputs = {
@@ -61,10 +62,67 @@ module.factory("BindingFactory", function(){
 
   return BindingFactory;
 });
-module.run(function($rootScope, BindingFactory){
+module.factory("Blackboard", function(){
+  
+  var Blackboard = function(){};
+
+  Blackboard.prototype._isEmpty = function(){
+    // null and undefined are "empty"
+    if (this == null){
+      return true;
+    }
+    // Assume if it has a length property with a non-zero value
+    // that that property is correct.
+    if (this.length > 0) {
+      return false;
+    }
+    if (this.length === 0){
+      return true;
+    }
+
+    // Otherwise, does it have any properties of its own?
+    // Note that this doesn't handle
+    // toString and valueOf enumeration bugs in IE < 9
+    for (var key in this) {
+      if (hasOwnProperty.call(this, key) && key.charAt(0) !== "_" ){
+        return false;
+      }
+    }
+
+    return true;
+  };
+  Blackboard.prototype._toList = function() {
+    var list = [];
+    for (var key in this) {
+      if (key.charAt(0) !== "_") {
+        list.push(this[key]);
+      }
+    }
+    return list;
+  };
+  Blackboard.prototype._searchBindingAttr = function(bindingName) {
+    var list = this._toList();
+
+    for (var index in list) {
+      for (var attr in list[index]) {
+        if (attr.charAt(0) !== "_"  && list[index][attr].bindingAttr === bindingName){
+          return list[index][attr]
+        }
+      }
+    }
+  };
+  Blackboard.prototype.searchType = function(type) {
+    // TODO devolver la lista de attributos con el tipo indicado
+    return null;
+  }
+
+  return Blackboard;
+});
+
+module.run(function($rootScope, BindingFactory, Blackboard){
   "use strict";
   $rootScope.__binding = new  BindingFactory();
-  $rootScope.__pizarra = {};
+  $rootScope.__blackboard = new Blackboard();
 });
 /**
  * @ngdoc directive
@@ -153,7 +211,10 @@ module.directive("registerVariable", ["$rootScope", "$compile", function($rootSc
       return true;
 
     };
-    scope.addAttribute = function(objetive, attribute, bindingAttrName) {
+
+    scope.__addAttribute = function(objetive, attribute, bindingAttrName) {
+      //Check type of element
+      var inputType = scope.__binding.inputs[objetive.attr("pseudo-name")].attrs[attribute].type;
       var interpolationName = "{{" + bindingAttrName + "}}";
       objetive.attr(attribute, interpolationName);
       var injector = objetive.injector();
@@ -208,26 +269,27 @@ module.directive("registerVariable", ["$rootScope", "$compile", function($rootSc
       };
     }
 
-    /*2) Segundo modelo para intentar la idea de pizarra */
+    /*2) Segundo modelo para intentar la idea de blackboard */
 
-    /* Fase 1: registrar las variables en la pizarra para saber quien esta produciendo datos y por donde */
+    /* Fase 1: registrar las variables en la blackboard para saber quien esta produciendo datos y por donde */
 
     var outputs = polymerElement.properties.outputs.value;
 
     if (!isEmpty(outputs)) {
-      $rootScope.__pizarra[elementNameRegister] = {};
+      $rootScope.__blackboard[elementNameRegister] = {};
       // TODO bindingAttr debe ser unico, usar algo parecido al elementNameRegister
       for (var output in outputs) {
-        $rootScope.__pizarra[elementNameRegister][output] = {type: outputs[output], bindingAttr: output};
+        $rootScope.__blackboard[elementNameRegister][output] = {type: outputs[output], bindingAttr: output};
       }
 
     }
     /* Fase 2: Añadir atributos al componente para que empiece a emitir información por esa variable */
     var objective = angular.element(polymerElement);
     for (var output in outputs) {
-      var bindingAttr = $rootScope.__pizarra[elementNameRegister][output].bindingAttr;
+      var bindingAttr = $rootScope.__blackboard[elementNameRegister][output].bindingAttr;
       objective.attr(output, "{{" + bindingAttr + "}}");
     }
+    objective.attr('pseudo-name', elementNameRegister);
     objective.removeAttr("register-variable");
     $compile(element)(scope);
   }
@@ -237,13 +299,6 @@ module.directive("registerVariable", ["$rootScope", "$compile", function($rootSc
 
 
 
-/**
-  * @ngdoc controller
-  * @name myApp.controller:myController
-  * @description
-  *
-  * This is the main controller. We used it for interconnect elements
-  */
 var app = angular.module('myApp', ['ngBinding'])
 app.controller("myController", ["$scope", function($scope){
   "use strict";
@@ -252,8 +307,8 @@ app.controller("myController", ["$scope", function($scope){
 
   $scope.interconexion = function(data) {
     var element = $scope.__binding.inputs[data.inputElement].element;
-    var bindingAttr = $scope.__pizarra[data.outputElement][data.outputAttr].bindingAttr;
-    element.scope().addAttribute(element, data.inputAttr, bindingAttr);
+    var bindingAttr = $scope.__blackboard[data.outputElement][data.outputAttr].bindingAttr;
+    element.scope().__addAttribute(element, data.inputAttr, bindingAttr);
   };
 
 }]);
