@@ -20,5 +20,7 @@
     "Platform": true,
     "page": true,
     "app": true
-  }
+  },
+  "no-underscore-dangle": [2, { "allow": [] }]
+
 }
