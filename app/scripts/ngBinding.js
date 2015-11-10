@@ -2,7 +2,7 @@
 		"use strict";
 
 		/**
-  * @ngdoc object
+  * @ngdoc overview
   * @name ngBinding
   * @description
   *
@@ -88,24 +88,45 @@
     *		inputs: {
     *			_isEmpty: function(),
 		*			_toList: function(),
-		*			_getTypeOfAttr: function(elementTarget, attrToGet)
+		*			_getTypeOfAttr: function(elementTarget, attrToGet),
+		*			my-list_1: {
+		*				attrs: {
+		*					filter: "String",
+		*					items:: "Object"
+		*				},
+		*				//Angular element that represent this component.
+		*				element: Object,
+		*				name: "my-list_1"
+		*			}
 		*		},
     *		outputs: {
     *			_isEmpty: function(),
 		*			_toList: function(),
 		*			_getTypeOfAttr: function(elementTarget, attrToGet),
-		*		},
+		*			input-text_1: {
+		*				attrs: {
+		*					text: "String"
+		*				},
+		*				//Angular element that represent this component.
+		*				element: Object,
+		*				name: "input-text_1"
+		*			}
+		*		}
 		*}
     * </pre>
     *	- **inputs**: is the list of the html elements with input attributes. This attributes consume data of someone type.
     *	- **outputs**: is the list of html elements with output attributes. This attributes consume data of someone type.
+		* <br><br>
 		*
 		* Either provides three auxiliar function to make easier access and check information about the inputs.
-    *	- `_isEmpty`:
-		*	- `_toList`:
-		*	- `_getTypeOfAttr`: .
-    *
-    *
+    *	- `_isEmpty()`: return if the list (inputs or outputs) is empty.
+		*	- `_toList()`: return an array with all the component. You can use it in ng-repeat
+		*	- `_getTypeOfAttr(elementTarget, attrToGet)`: return the type of the attribute `attrToGet`. It needs the 
+		* angular element `elementTarget` for look for the attribute in this component.
+    * <br><br>
+		*
+    * The component are added in the correct structure when the HTML tag that reference this componente has the directives
+		* `bind-polymer` and `register-variable`
     */
 
 				var BindingFactory = function() {
@@ -125,10 +146,47 @@
 
 				return BindingFactory;
 		}).
+		/**
+   * @ngdoc service
+   * @name ngBinding.Blackboard
+   * @description
+   * Use `Blackboard` to create a new Blackboard object. We will use this object to register all 
+	 * the outputs with them binding variables.
+   */
 		factory("Blackboard", function(){
-				"use strict";
-				var Blackboard = function(){};
 
+	/**
+    * @ngdoc
+    * @name ngBinding.Blackboard#Blackboard
+    * @methodOf ngBinding.Blackboard
+    * @description
+		*
+		* The constructor for of new Object Blackboard. It provides several prototype function for administrate the 
+		* elements:
+		*
+		* 
+		* 
+		* <pre>
+		*	Blackboard: {
+		*		input-text_0: {
+		*			text: {
+		*				bindingAttr: "text_input_text_0",
+		*				type: "String"
+		*			},
+		*			_proto: {
+    *				_isEmpty: function(),
+		*				_toList: function(),
+		*				_getTypeOfBindingAttr: function(bindingName),
+		*			}
+		*		}
+		* }
+		* </pre>
+		*	- `_isEmpty()`: return if there are not elements in the blackboard.
+		* - `_toList()`: return an array with all the component. You can use it in ng-repeat.
+		* - `_getTypeOfBindingAttr(bindingName)`: return the type of the binding variable. It need the name of the variable.
+		*
+		*/
+				var Blackboard = function(){};
 				Blackboard.prototype._isEmpty = function(){
 						// null and undefined are "empty"
 						if (this == null){
@@ -283,75 +341,75 @@
 						var polymerElement = element[0];
 						/* 1) Para primera prueba: guardamos todos los datos en una variable, tanto inputs como outputs*/
 
-						/* Nombramos al elemento por los atributos*/
-						var elementNameRegister = polymerElement.tagName.toLowerCase();
-						// Contabilizar las veces que esta este elemento en inputs y outputs
-						var nElement = getMe(polymerElement);
-						elementNameRegister += "_" + nElement;
+				/* Nombramos al elemento por los atributos*/
+				var elementNameRegister = polymerElement.tagName.toLowerCase();
+				// Contabilizar las veces que esta este elemento en inputs y outputs
+				var nElement = getMe(polymerElement);
+				elementNameRegister += "_" + nElement;
 
-						/* Guardamos los inputs y los outputs */
-						if (polymerElement.properties.inputs && !isEmpty(polymerElement.properties.inputs.value)) {
-								$rootScope.__binding.inputs[elementNameRegister] = {
-										attrs: polymerElement.properties.inputs.value,
-										element: element,
-										name: elementNameRegister,
-										_toListAttrs: function() {
-												var list = [];
-												for (var key in this.attrs) {
-														if (key.charAt(0) !== "_") {
-																list.push(key);
-														}
+				/* Guardamos los inputs y los outputs */
+				if (polymerElement.properties.inputs && !isEmpty(polymerElement.properties.inputs.value)) {
+						$rootScope.__binding.inputs[elementNameRegister] = {
+								attrs: polymerElement.properties.inputs.value,
+								element: element,
+								name: elementNameRegister,
+								_toListAttrs: function() {
+										var list = [];
+										for (var key in this.attrs) {
+												if (key.charAt(0) !== "_") {
+														list.push(key);
 												}
-												return list;
 										}
-								};
-
-						}
-						if (polymerElement.properties.outputs && !isEmpty(polymerElement.properties.outputs.value)) {
-								$rootScope.__binding.outputs[elementNameRegister] = {
-										attrs: polymerElement.properties.outputs.value,
-										element: element[0],
-										name: elementNameRegister,
-										_toListAttrs: function() {
-												var list = [];
-												for (var key in this.attrs) {
-														if (key.charAt(0) !== "_") {
-																list.push(key);
-														}
-												}
-												return list;
-										}
-								};
-						}
-
-						/*2) modelo para intentar la idea de blackboard */
-
-						/* Fase 1: registrar las variables en la blackboard para saber quien esta produciendo datos y por donde */
-						var outputs = polymerElement.properties.outputs.value;
-
-						if (!isEmpty(outputs)) {
-								$rootScope.__blackboard[elementNameRegister] = {};
-								for (var output in outputs) {
-										// We use the name of element register for identify the output.
-										// We'll replace - by _ because angular deal with it like minus symbol.
-										var bindingAttr = output + "_" + elementNameRegister.replace("-", "_");
-										$rootScope.__blackboard[elementNameRegister][output] = {type: outputs[output], bindingAttr: bindingAttr};
+										return list;
 								}
+						};
 
-						}
-
-						/* Fase 2: Añadir atributos al componente para que empiece a emitir información por esa variable */
-						var objective = angular.element(polymerElement);
-						for (var attr in outputs) {
-								var bindingAttr = $rootScope.__blackboard[elementNameRegister][attr].bindingAttr;
-								objective.attr(attr, "{{" + bindingAttr + "}}");
-						}
-
-						/* Fase 3: recompilamos el componente con los binding de angularjs*/
-						objective.attr("pseudo-name", elementNameRegister);
-						objective.removeAttr("register-variable");
-						$compile(element)(scope);
 				}
-				return {link: link};
-		}]);
+				if (polymerElement.properties.outputs && !isEmpty(polymerElement.properties.outputs.value)) {
+						$rootScope.__binding.outputs[elementNameRegister] = {
+								attrs: polymerElement.properties.outputs.value,
+								element: element[0],
+								name: elementNameRegister,
+								_toListAttrs: function() {
+										var list = [];
+										for (var key in this.attrs) {
+												if (key.charAt(0) !== "_") {
+														list.push(key);
+												}
+										}
+										return list;
+								}
+						};
+				}
+
+				/*2) modelo para intentar la idea de blackboard */
+
+				/* Fase 1: registrar las variables en la blackboard para saber quien esta produciendo datos y por donde */
+				var outputs = polymerElement.properties.outputs.value;
+
+				if (!isEmpty(outputs)) {
+						$rootScope.__blackboard[elementNameRegister] = {};
+						for (var output in outputs) {
+								// We use the name of element register for identify the output.
+								// We'll replace - by _ because angular deal with it like minus symbol.
+								var bindingAttr = output + "_" + elementNameRegister.replace("-", "_");
+								$rootScope.__blackboard[elementNameRegister][output] = {type: outputs[output], bindingAttr: bindingAttr};
+						}
+
+				}
+
+				/* Fase 2: Añadir atributos al componente para que empiece a emitir información por esa variable */
+				var objective = angular.element(polymerElement);
+				for (var attr in outputs) {
+						var bindingAttr = $rootScope.__blackboard[elementNameRegister][attr].bindingAttr;
+						objective.attr(attr, "{{" + bindingAttr + "}}");
+				}
+
+				/* Fase 3: recompilamos el componente con los binding de angularjs*/
+				objective.attr("pseudo-name", elementNameRegister);
+				objective.removeAttr("register-variable");
+				$compile(element)(scope);
+		}
+						return {link: link};
+						}]);
 })(window, window.angular);
