@@ -7,11 +7,10 @@
   * 
   * This is the module for MyApp. It used something
   **/
-var app = angular.module("myApp", []);
-
-app.factory("Binding", function(){
+var module = angular.module("ngBinding", ['ng']);
+// TODO falta comprobación de errores para evitar bugs
+module.factory("BindingFactory", function(){
   "use strict";
-
 
   var _isEmpty = function(){
     // null and undefined are "empty"
@@ -48,7 +47,7 @@ app.factory("Binding", function(){
     return list;
   };
   // instantiate our initial object
-  var Binding = function() {
+  var BindingFactory = function() {
     this.inputs = {
       _isEmpty: _isEmpty,
       _toList: _toList
@@ -60,54 +59,13 @@ app.factory("Binding", function(){
   };
 
 
-  return Binding;
+  return BindingFactory;
 });
-app.run(function($rootScope, Binding){
+module.run(function($rootScope, BindingFactory){
   "use strict";
-  $rootScope.binding = new  Binding();
+  $rootScope.__binding = new  BindingFactory();
+  $rootScope.__pizarra = {};
 });
-
-/**
-  * @ngdoc controller
-  * @name myApp.controller:myController
-  * @description
-  *
-  * This is the main controller. We used it for interconnect elements
-  */
-app.controller("myController", ["$scope", function($scope){
-  "use strict";
-
-  $scope.elements = document.querySelector("#container").children;
-
-  $scope.interconexion = function(nameInput, nameOutput) {
-    var splited = nameInput.split(" --> ");
-    var element = document.querySelector(splited[0]);
-    var attributeObjective = splited[1];
-    splited = nameOutput.split(" --> ");
-    var bindingAttr = $scope.pizarra[splited[0]][splited[1]].bindingAttr;
-    $scope.addAttribute(element, attributeObjective, bindingAttr);
-  };
-  /**
-     * @brief  Funcion para realizar el binding entre el atributo a conectar con otro. Requiere de la ayuda de angularjs para recompilar el elementoy realizarel binding
-     * @param in html_element element  Elemento sobre el que se añade
-     * @param in String attribute Nombre del atributo sobre el que se el que se añade el binding
-     * @param in String value Nombre de la variable sobre la que se publican los datos
-     */
-
-  $scope.addAttribute = function(element, attribute, value) {
-
-    // Temporal
-    var objective = angular.element(element);
-    value = "{{" + value + "}}";
-    objective.attr(attribute, value);
-    var injector = objective.injector();
-    var $compile = injector.get("$compile");
-    $compile(objective)(objective.scope());
-  };
-
-}]);
-
-
 /**
  * @ngdoc directive
  * @name MyApp.directive: bindPolymer
@@ -117,7 +75,7 @@ app.controller("myController", ["$scope", function($scope){
  *
  * This is the main directive of the application. Its is restrict to attributes
  **/
-app.directive("bindPolymer", ["$parse", function($parse) {
+module.directive("bindPolymer", ["$parse", function($parse) {
   return {
     restrict: 'A',
     scope : false,
@@ -163,9 +121,10 @@ app.directive("bindPolymer", ["$parse", function($parse) {
   };
 }]);
 
-
-app.directive("registerVariable", ["$rootScope", "$compile", function($rootScope, $compile) {
+module.directive("registerVariable", ["$rootScope", "$compile", function($rootScope, $compile) {
   "use strict";
+
+  // TODO comprobación de tipos y filtros
   function link(scope, element) {
     var isEmpty = function(obj) {
 
@@ -194,7 +153,14 @@ app.directive("registerVariable", ["$rootScope", "$compile", function($rootScope
       return true;
 
     };
-    /*FUTURE ¿utilizar esto en una factoria para generar mas estructurado los elementos añadidos a binding? */
+    scope.addAttribute = function(objetive, attribute, bindingAttrName) {
+      var interpolationName = "{{" + bindingAttrName + "}}";
+      objetive.attr(attribute, interpolationName);
+      var injector = objetive.injector();
+      var $compile = injector.get("$compile");
+      $compile(objetive)(objetive.scope());
+    };
+
     var polymerElement = element[0];
     /* 1) Para primera prueba: guardamos todos los datos en una variable, tanto inputs como outputs*/
 
@@ -208,41 +174,58 @@ app.directive("registerVariable", ["$rootScope", "$compile", function($rootScope
        * indicando nombre de la etiqueta + nº de elementos con el mismo tag en el dashboard (id.unico)
        * @element: referencia al elemento dentro del dashboard
        */
-    if (polymerElement.properties.inputs && isEmpty(polymerElement.properties.inputs.value)) {
-      $rootScope.binding.inputs[elementNameRegister] = {
+    if (polymerElement.properties.inputs && !isEmpty(polymerElement.properties.inputs.value)) {
+      $rootScope.__binding.inputs[elementNameRegister] = {
         attrs: polymerElement.properties.inputs.value,
-        element: element[0],
-        name: elementNameRegister
+        element: element,
+        name: elementNameRegister,
+        _toListAttrs: function() {
+          var list = [];
+          for (var key in this.attrs) {
+            if (key.charAt(0) !== "_") {
+              list.push(key);
+            }
+          }
+          return list;
+        }
       };
+
     }
-    if (polymerElement.properties.outputs && isEmpty(polymerElement.properties.outputs.value)) {
-      $rootScope.binding.outputs[elementNameRegister] = {
-        attrs: polymerElement.properties.inputs.value,
+    if (polymerElement.properties.outputs && !isEmpty(polymerElement.properties.outputs.value)) {
+      $rootScope.__binding.outputs[elementNameRegister] = {
+        attrs: polymerElement.properties.outputs.value,
         element: element[0],
-        name: elementNameRegister
+        name: elementNameRegister,
+        _toListAttrs: function() {
+          var list = [];
+          for (var key in this.attrs) {
+            if (key.charAt(0) !== "_") {
+              list.push(key);
+            }
+          }
+          return list;
+        }
       };
     }
 
     /*2) Segundo modelo para intentar la idea de pizarra */
 
     /* Fase 1: registrar las variables en la pizarra para saber quien esta produciendo datos y por donde */
-    var componentName = polymerElement.tagName.toLowerCase();
-    if (!$rootScope.pizarra) {
-      $rootScope.pizarra = {};
-    }
+
     var outputs = polymerElement.properties.outputs.value;
 
     if (!isEmpty(outputs)) {
-      $rootScope.pizarra[componentName] = {};
+      $rootScope.__pizarra[elementNameRegister] = {};
+      // TODO bindingAttr debe ser unico, usar algo parecido al elementNameRegister
       for (var output in outputs) {
-        $rootScope.pizarra[componentName][output] = {type: outputs[output], bindingAttr: output};
+        $rootScope.__pizarra[elementNameRegister][output] = {type: outputs[output], bindingAttr: output};
       }
 
     }
     /* Fase 2: Añadir atributos al componente para que empiece a emitir información por esa variable */
     var objective = angular.element(polymerElement);
     for (var output in outputs) {
-      var bindingAttr = $rootScope.pizarra[componentName][output].bindingAttr;
+      var bindingAttr = $rootScope.__pizarra[elementNameRegister][output].bindingAttr;
       objective.attr(output, "{{" + bindingAttr + "}}");
     }
     objective.removeAttr("register-variable");
@@ -250,3 +233,30 @@ app.directive("registerVariable", ["$rootScope", "$compile", function($rootScope
   }
   return {link: link};
 }]);
+
+
+
+
+/**
+  * @ngdoc controller
+  * @name myApp.controller:myController
+  * @description
+  *
+  * This is the main controller. We used it for interconnect elements
+  */
+var app = angular.module('myApp', ['ngBinding'])
+app.controller("myController", ["$scope", function($scope){
+  "use strict";
+
+  $scope.elements = document.querySelector("#container").children;
+
+  $scope.interconexion = function(data) {
+    var element = $scope.__binding.inputs[data.inputElement].element;
+    var bindingAttr = $scope.__pizarra[data.outputElement][data.outputAttr].bindingAttr;
+    element.scope().addAttribute(element, data.inputAttr, bindingAttr);
+  };
+
+}]);
+
+
+

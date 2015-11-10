@@ -59,35 +59,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   </head>
 
-  <body unresolved class="fullbleed layout vertical" ng-app="myApp" ng-controller="myController">
+  <body unresolved class="fullbleed" ng-app="myApp" ng-controller="myController">
     <div id="container">
       <input-text bind-polymer register-variable></input-text>
       <my-list bind-polymer register-variable></my-list>
 
       <br>
       <hr>
-      <div>
-        <p>Lista de atributos monitorizados</p>
+      <p>Lista de atributos monitorizados</p>
 
-        <span>Elemento que proporciona datos </span><select name="listInput" ng-model="data.input">
+      <span>Elemento que proporciona datos </span><select name="listOutput" ng-model="data.outputElement">
+      <option value="">Seleciona el dato a conectar</option>
+      <option ng-repeat="element in __binding.outputs._toList()">{{element.name}}</option>
+      </select>
+
+      <div ng-show="data.outputElement">
+        <span>Seleccione un attribute de {{data.outputElement}} </span><select name="listoutput" ng-model="data.outputAttr">
         <option value="">Seleciona el dato a conectar</option>
-        <option ng-repeat=" element in binding.outputs._toList()">
-          <p>{{element.name}}</p>
-        </option>
+        <option ng-repeat="attr in __binding.outputs[data.outputElement]._toListAttrs()">{{attr}}</option>
         </select>
-        <br><br>
-        <span>Elementos que consumen datos</span><select name="listOutput" ng-model="data.output">
-        <option value="">Seleciona el componente que admite el dato</option>
-        <option ng-repeat="element in binding.inputs._toList()">{{element.name}}</option>
-
-        </select>
-        <option value></option>
       </div>
+      <br><br>
 
-      <button ng-click="interconexion(data.output, data.input)">
-        Conectar
-      </button>
+      <span>Elemento que proporciona datos </span><select name="listInput" ng-model="data.inputElement">
+      <option value="">Seleciona el dato a conectar</option>
+      <option ng-repeat="element in __binding.inputs._toList()">{{element.name}}</option>
+      </select>
+
+      <div ng-show="data.inputElement">
+        <span>Seleccione un attribute de {{data.inputElement}} </span><select name="listInput" ng-model="data.inputAttr">
+        <option value="">Seleciona el dato a conectar</option>
+        <option ng-repeat="attr in __binding.inputs[data.inputElement]._toListAttrs()">{{attr}}</option>
+        </select>
+      </div>
     </div>
+
+    <button ng-click="interconexion(data)">
+      Conectar
+    </button>
     <script src="bower_components/angular/angular.min.js"></script>
     <script src="scripts/app.js"></script>
   </body>
