@@ -1,12 +1,18 @@
 module.exports = function(grunt) {
-  grunt.initConfig({
-    ngdocs: {
-      all: ["./app/scripts/*.js"]
-    }
-  });
+    grunt.initConfig({
+        ngdocs: {
+            all: ["./app/scripts/*.js"]
+        },
+        watch: {
+            scripts: {
+                files: ["app/scripts/*.js"],
+                tasks: ['ngdocs']
+            }
+        }
+    });
 
+    grunt.loadNpmTasks("grunt-ngdocs");
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.loadNpmTasks("grunt-ngdocs");
-
-  grunt.registerTask("default", "ngdocs");
+    grunt.registerTask("default", "ngdocs");
 };
