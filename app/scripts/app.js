@@ -13,12 +13,9 @@ module.factory("BindingFactory", function(){
   "use strict";
 
   var _isEmpty = function(){
-    // null and undefined are "empty"
     if (this == null){
       return true;
     }
-    // Assume if it has a length property with a non-zero value
-    // that that property is correct.
     if (this.length > 0) {
       return false;
     }
@@ -46,16 +43,29 @@ module.factory("BindingFactory", function(){
     }
     return list;
   };
-
+  var _getTypeOfAttr = function(element, attrToSearch) {
+    for (var key in this) {
+      if (key.charAt(0) !== "_" && this[key].element === element) {
+        for (var attr in this[key].attrs) {
+          if (attr === attrToSearch) {
+            return this[key].attrs[attr];
+          }
+        }
+      }
+    }
+  };
   // instantiate our initial object
   var BindingFactory = function() {
     this.inputs = {
       _isEmpty: _isEmpty,
-      _toList: _toList
+      _toList: _toList,
+      _getTypeOfAttr: _getTypeOfAttr
     };
     this.outputs = {
       _isEmpty: _isEmpty,
-      _toList: _toList
+      _toList: _toList,
+      _getTypeOfAttr: _getTypeOfAttr
+
     };
   };
 
@@ -63,7 +73,7 @@ module.factory("BindingFactory", function(){
   return BindingFactory;
 });
 module.factory("Blackboard", function(){
-  
+  "use strict";
   var Blackboard = function(){};
 
   Blackboard.prototype._isEmpty = function(){
@@ -100,24 +110,18 @@ module.factory("Blackboard", function(){
     }
     return list;
   };
-  Blackboard.prototype._searchBindingAttr = function(bindingName) {
+  Blackboard.prototype._getTypeOfBindingAttr = function(bindingName) {
     var list = this._toList();
 
     for (var index in list) {
       for (var attr in list[index]) {
         if (attr.charAt(0) !== "_"  && list[index][attr].bindingAttr === bindingName){
-          return list[index][attr]
+          return list[index][attr].type
         }
       }
     }
   };
-  Blackboard.prototype.searchType = function(type) {
-    // TODO devolver la lista de attributos con el tipo indicado
-    return null;
-  }
 
-  return Blackboard;
-});
 
 module.run(function($rootScope, BindingFactory, Blackboard){
   "use strict";
@@ -182,16 +186,13 @@ module.directive("bindPolymer", ["$parse", function($parse) {
 module.directive("registerVariable", ["$rootScope", "$compile", function($rootScope, $compile) {
   "use strict";
 
-  // TODO comprobación de tipos y filtros
+  // TODO filtros para los elementos elegibles (¿delegar en el usuario?)
   function link(scope, element) {
     var isEmpty = function(obj) {
 
-      // null and undefined are "empty"
       if (obj == null){
         return true;
       }
-      // Assume if it has a length property with a non-zero value
-      // that that property is correct.
       if (obj.length > 0) {
         return false;
       }
@@ -214,7 +215,11 @@ module.directive("registerVariable", ["$rootScope", "$compile", function($rootSc
 
     scope.__addAttribute = function(objetive, attribute, bindingAttrName) {
       //Check type of element
-      var inputType = scope.__binding.inputs[objetive.attr("pseudo-name")].attrs[attribute].type;
+      var inputType = scope.__binding.inputs._getTypeOfAttr(element, attribute);
+      var outputType = scope.__blackboard._getTypeOfBindingAttr(bindingAttrName);
+      if (inputType !== outputType) {
+        throw "Input and output type are not equals: " + inputType + " vs " + outputType;
+      }
       var interpolationName = "{{" + bindingAttrName + "}}";
       objetive.attr(attribute, interpolationName);
       var injector = objetive.injector();
@@ -299,7 +304,7 @@ module.directive("registerVariable", ["$rootScope", "$compile", function($rootSc
 
 
 
-var app = angular.module('myApp', ['ngBinding'])
+var app = angular.module("myApp", ["ngBinding"]);
 app.controller("myController", ["$scope", function($scope){
   "use strict";
 
