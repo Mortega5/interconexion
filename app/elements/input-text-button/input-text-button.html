@@ -9,7 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<dom-module id="input-text">
+<dom-module id="input-text-button">
   <template>
     <style include="shared-styles"></style>
     <style>
@@ -21,7 +21,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <!--    <h2 class="page-title"><span>{{text}}</span></h2>-->
     <span class="paper-font-body2">Input de texto</span>
     <!-- Listens for "input" event and sets text to <input>.value -->
-    <input id="input" class="paper-font-body2" value="{{text::input}}">
+    <input id="input" class="paper-font-body2">
+    <button on-click="_sendText">Send</button>
   </template>
 
   <script>
@@ -29,7 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       'use strict';
 
       Polymer({
-        is: 'input-text',
+        is: 'input-text-button',
 
         properties: {
           text: {
@@ -50,6 +51,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         _sendData: function (newValue, oldValue) {
           this.fire("evento-prueba",{newValue: newValue}); 
+        },
+        _sendText: function(){
+          this.text = this.$.input.value;
         }
       });
     })();

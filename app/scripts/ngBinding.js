@@ -1,4 +1,4 @@
-(function(window, angular, undefined){
+(function(window, angular){
 		"use strict";
 
 		/**
@@ -7,6 +7,7 @@
   * @description
   *
   * # ngBinding
+  *
   *
   * The `ngBinding` provides the posibility to interconnect polymer element using directives.
   *
@@ -326,7 +327,7 @@
 						};
 						scope.__addAttribute = function(objetive, attribute, bindingAttrName) {
 								//Check type of element
-								var inputType = scope.__binding.inputs._getTypeOfAttr(element, attribute);
+								var inputType = scope.__binding.inputs._getTypeOfAttr(objetive, attribute);
 								var outputType = scope.__blackboard._getTypeOfBindingAttr(bindingAttrName);
 								if (inputType !== outputType) {
 										throw "Input and output type are not equals: " + inputType + " vs " + outputType;
@@ -392,7 +393,7 @@
 						for (var output in outputs) {
 								// We use the name of element register for identify the output.
 								// We'll replace - by _ because angular deal with it like minus symbol.
-								var bindingAttr = output + "_" + elementNameRegister.replace("-", "_");
+								var bindingAttr = output + "_" + elementNameRegister.replace(/-/g, "_");
 								$rootScope.__blackboard[elementNameRegister][output] = {type: outputs[output], bindingAttr: bindingAttr};
 						}
 

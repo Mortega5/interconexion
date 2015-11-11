@@ -60,43 +60,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </head>
 
   <body unresolved class="fullbleed" ng-app="myApp" ng-controller="myController">
-    <div id="container">
-      <input-text bind-polymer register-variable></input-text>
-      <my-list bind-polymer register-variable></my-list>
-      
-      <input-text bind-polymer register-variable></input-text>
-      <my-list bind-polymer register-variable></my-list>
+    <div id="container" class="horizontal center-justified layout">
+      <div >
+        <input-text bind-polymer register-variable></input-text>
+        <my-list bind-polymer register-variable></my-list>
 
-      <br>
-      <hr>
-      <p>Lista de atributos monitorizados</p>
-
-      <span>Elemento que proporciona datos </span><select name="listOutput" ng-model="data.outputElement">
-      <option value="">Seleciona el dato a conectar</option>
-      <option ng-repeat="element in __binding.outputs._toList()">{{element.name}}</option>
-      </select>
-
-      <div ng-show="data.outputElement">
-        <span>Seleccione un attribute de {{data.outputElement}} </span><select name="listoutput" ng-model="data.outputAttr">
-        <option value="">Seleciona el dato a conectar</option>
-        <option ng-repeat="attr in __binding.outputs[data.outputElement]._toListAttrs()">{{attr}}</option>
-        </select>
+        <input-text-button bind-polymer register-variable></input-text-button>
+        <br>
+        <fb-publicator bind-polymer register-variable></fb-publicator>
       </div>
-      <br><br>
-
-      <span>Elemento que proporciona datos </span><select name="listInput" ng-model="data.inputElement">
-      <option value="">Seleciona el dato a conectar</option>
-      <option ng-repeat="element in __binding.inputs._toList()">{{element.name}}</option>
-      </select>
-
-      <div ng-show="data.inputElement">
-        <span>Seleccione un attribute de {{data.inputElement}} </span><select name="listInput" ng-model="data.inputAttr">
-        <option value="">Seleciona el dato a conectar</option>
-        <option ng-repeat="attr in __binding.inputs[data.inputElement]._toListAttrs()">{{attr}}</option>
-        </select>
+      <div>
+        <github-events bind-polymer register-variable username="mortega5" component_directory="bower_components/github-events/"></github-events>
       </div>
     </div>
+    <br>
+    <hr>
 
+    <p>Lista de atributos monitorizados</p>
+
+    <span>Elemento que proporciona datos </span><select name="listOutput" ng-model="data.outputElement">
+    <option value="">Seleciona el dato a conectar</option>
+    <option ng-repeat="element in __binding.outputs._toList()">{{element.name}}</option>
+    </select>
+
+    <div ng-show="data.outputElement">
+      <span>Seleccione un attribute de {{data.outputElement}} </span><select name="listoutput" ng-model="data.outputAttr">
+      <option value="">Seleciona el dato a conectar</option>
+      <option ng-repeat="attr in __binding.outputs[data.outputElement]._toListAttrs()">{{attr}}</option>
+      </select>
+    </div>
+    <br><br>
+
+    <span>Elemento que proporciona datos </span><select name="listInput" ng-model="data.inputElement">
+    <option value="">Seleciona el dato a conectar</option>
+    <option ng-repeat="element in __binding.inputs._toList()">{{element.name}}</option>
+    </select>
+
+    <div ng-show="data.inputElement">
+      <span>Seleccione un attribute de {{data.inputElement}} </span><select name="listInput" ng-model="data.inputAttr">
+      <option value="">Seleciona el dato a conectar</option>
+      <option ng-repeat="attr in __binding.inputs[data.inputElement]._toListAttrs()">{{attr}}</option>
+      </select>
+    </div>
+    <br>
     <button ng-click="interconexion(data)">
       Conectar
     </button>
