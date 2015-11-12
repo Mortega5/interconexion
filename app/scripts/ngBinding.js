@@ -408,6 +408,7 @@
 
 				/* Fase 3: recompilamos el componente con los binding de angularjs*/
 				objective.attr("pseudo-name", elementNameRegister);
+        objective.attr("bind-polymer", "");
 				objective.removeAttr("register-variable");
 				$compile(element)(scope);
 		}
