@@ -5,3 +5,5 @@ dist
 comando
 docs
 bower_elements
+build
+*.min.*
