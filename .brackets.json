@@ -1,6 +1,7 @@
 {
     "jscodehints.detectedExclusions": [
         "/home/miguel/interconexion/app/scripts/app.js",
-        "/home/miguel/interconexion/Gruntfile.js"
+        "/home/miguel/interconexion/Gruntfile.js",
+        "/home/miguel/interconexion/app/bower_components/prism/components/prism-haskell.min.js"
     ]
 }

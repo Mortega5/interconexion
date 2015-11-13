@@ -163,6 +163,7 @@
 
       //TODO eliminar los nodos de los que consume datos (binding.inputs[element].consumerOf-->object)
     };
+	
 
     return BindingFactory;
   }).
@@ -367,16 +368,18 @@
       //TODO realizar comprobación de bucles
       //TODO comprobación de tipos compleja mediante una abstración superior (XML?)
       scope.__addAttribute = function(objetive, attribute, bindingAttrName) {
-        //Check type of element
+        //TODO Comprobar existencia de ambas partes en las estructuras binding y blackboard
+				//Check type of element
         var inputType = scope.__binding.inputs._getTypeOfAttr(objetive, attribute);
         var outputType = scope.__blackboard._getTypeOfBindingAttr(bindingAttrName);
         if (inputType !== outputType) {
           throw "Input and output type are not equals: " + inputType + " vs " + outputType;
         }
         // TODO añadir información en inputs de objetive y en outputs del elemento de bindingAttrName
-        // necesito acceder a binding.outputs no a blackboard
-        var producerElement = scope.__blackboard._getElementByBindingAttr(bindingAttrName);
-
+				// Añadir dos funciones auxiliares para manejar dependencias
+				// Example: addDependencia(productor, consumidor) --> añadir consumidor a productor y viceversa
+				// 					borrarDependencia(elemento) --> debe borrar la dependencia simetrica al otro lado
+				
         var interpolationName = "{{" + bindingAttrName + "}}";
         objetive.attr(attribute, interpolationName);
         var injector = objetive.injector();
