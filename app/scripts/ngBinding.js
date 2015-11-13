@@ -239,12 +239,13 @@
     Blackboard.prototype._remove = function(element) {
       //TODO eliminar dicho elemento de la lista. Avisar a los nodos conectados de este suceso
       //NOTA quiza mandar información a los nodos a los que estaba enlazado para realizar accion
+      return 
+      
     };
     return Blackboard;
   }).
 
   run(function($rootScope, BindingFactory, Blackboard){
-    "use strict";
     $rootScope.__binding = new  BindingFactory();
     $rootScope.__blackboard = new Blackboard();
   }).
@@ -296,7 +297,6 @@
   }]).
 
   directive("registerVariable", ["$rootScope", "$compile", function($rootScope, $compile) {
-    "use strict";
 
     // TODO filtros para los elementos elegibles (¿delegar en el usuario?)
     function link(scope, element) {
@@ -350,6 +350,7 @@
       var removeElement = function(){
         //Call remove of scope.__binding.remove(element)
         //Call remove of scope.__blackboard.remove(element)
+        scope.__blackboard._remove(this.getAttribute("pseudo-name"));
       }
       var polymerElement = element[0];
       /* 1) Para primera prueba: guardamos todos los datos en una variable, tanto inputs como outputs*/
@@ -404,7 +405,7 @@
       var outputs = polymerElement.properties.outputs.value;
 
       if (!isEmpty(outputs)) {
-        $rootScope.__blackboard[elementNameRegister] = {};
+        $rootScope.__blackboard[elementNameRegister] = {element: element[0]};
         for (var output in outputs) {
           // We use the name of element register for identify the output.
           // We'll replace - by _ because angular deal with it like minus symbol.
