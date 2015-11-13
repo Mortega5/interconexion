@@ -68,12 +68,12 @@ module.exports = function(grunt) {
 
 		browserSync: {
 			bsFiles: {
-				src: ["app/scrips/*.js", "app/styles/*.css", "app/index.html"]
+				src: ["app/scripts/*.js", "app/styles/*.css", "app/index.html"]
 			},
 			options: {
 				port: 8080,
 				server: {
-					baseDir: "./"
+					baseDir: "./app"
 				}
 			}
 
