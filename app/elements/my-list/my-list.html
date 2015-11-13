@@ -69,6 +69,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         pushElement: function(element) {
           this.push("items",element);
+        },
+        sleep : function(milliseconds) {
+          var start = new Date().getTime();
+          for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > milliseconds){
+              break;
+            }
+          }
+        },
+        created: function () {
+          this.sleep(1000);
         }
       });
     })();

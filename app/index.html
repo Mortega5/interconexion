@@ -56,7 +56,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <!-- For shared styles, shared-styles.html import in elements.html -->
     <style is="custom-style" include="shared-styles"></style>
-
   </head>
 
   <body unresolved class="fullbleed" ng-app="myApp" ng-controller="myController">
@@ -86,7 +85,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div ng-show="data.outputElement">
       <span>Seleccione un attribute de {{data.outputElement}} </span><select name="listoutput" ng-model="data.outputAttr">
       <option value="">Seleciona el dato a conectar</option>
-      <option ng-repeat="attr in __binding.outputs[data.outputElement]._toListAttrs()">{{attr}}</option>
+      <option ng-repeat="attr in __binding.outputs[data.outputElement]._toListAttrs()" title="{{attr.description}}">{{attr.name}}</option>
       </select>
     </div>
     <br><br>
@@ -99,7 +98,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div ng-show="data.inputElement">
       <span>Seleccione un attribute de {{data.inputElement}} </span><select name="listInput" ng-model="data.inputAttr">
       <option value="">Seleciona el dato a conectar</option>
-      <option ng-repeat="attr in __binding.inputs[data.inputElement]._toListAttrs()">{{attr}}</option>
+      <option ng-repeat="attr in __binding.inputs[data.inputElement]._toListAttrs()" title="{{attr.description}}">{{attr.name}}</option>
       </select>
     </div>
     <br>
