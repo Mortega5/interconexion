@@ -44,7 +44,7 @@
       }
 
       // Otherwise, does it have any properties of its own?
-      // Note that this doesn't handle
+      // that this doesn't handle
       // toString and valueOf enumeration bugs in IE < 9
       for (var key in this) {
         if (hasOwnProperty.call(this, key) && key.charAt(0) !== "_" ){
@@ -74,6 +74,9 @@
         }
       }
     };
+    var _recursiveBindingDelete = function(productorElement, ConsumerElement) {
+      
+    }
 
     /**
     * @ngdoc
@@ -143,10 +146,23 @@
 
       };
     };
-    BindingFactory.prototype.remove = function(elemment) {
+    BindingFactory.prototype._remove = function(element) {
       //TODO eliminar el elemento de ambos nodos y avisar a los nodos conectados
-      //NOTA quiza mandar información a los nodos a los que estaba enlazado para realizar accion
-    }
+      //FUTURE quiza mandar información a los nodos a los que estaba enlazado para realizar accion
+      
+      //Delete element in inputs
+      if (this.inputs[element]) {
+        delete this.inputs[element];
+      }
+
+      //Delete element in outputs
+      if (this.outputs[element]) {
+        delete this.outputs[element];
+      }
+      //TODO eliminar los nodos consumidores del dato que yo produzco (binding.output[element].produceTo -> object)
+
+      //TODO eliminar los nodos de los que consume datos (binding.inputs[element].consumerOf-->object)
+    };
 
     return BindingFactory;
   }).
@@ -206,7 +222,7 @@
       }
 
       // Otherwise, does it have any properties of its own?
-      // Note that this doesn't handle
+      // that this doesn't handle
       // toString and valueOf enumeration bugs in IE < 9
       for (var key in this) {
         if (hasOwnProperty.call(this, key) && key.charAt(0) !== "_" ){
@@ -237,10 +253,14 @@
       }
     };
     Blackboard.prototype._remove = function(element) {
-      //TODO eliminar dicho elemento de la lista. Avisar a los nodos conectados de este suceso
-      //NOTA quiza mandar información a los nodos a los que estaba enlazado para realizar accion
-      return 
-      
+      var elementDelete = this[element];
+      if (!elementDelete) {
+        throw "ReferenceError: '" + element + "' is not defined in the Blackboard";
+      }
+      delete this[element];
+
+      return elementDelete;
+
     };
     return Blackboard;
   }).
@@ -313,7 +333,7 @@
         }
 
         // Otherwise, does it have any properties of its own?
-        // Note that this doesn't handle
+        // that this doesn't handle
         // toString and valueOf enumeration bugs in IE < 9
         for (var key in obj) {
           if (hasOwnProperty.call(obj, key)){
@@ -332,6 +352,9 @@
           }
         }
       };
+      //TODO añadir información en una lista tanto en los añadidos como en los borrados de binding
+      //TODO realizar comprobación de bucles
+      //TODO comprobación de tipos compleja mediante una abstración superior (XML?)
       scope.__addAttribute = function(objetive, attribute, bindingAttrName) {
         //Check type of element
         var inputType = scope.__binding.inputs._getTypeOfAttr(objetive, attribute);
@@ -349,6 +372,7 @@
       //TODO Eliminar la información del elemento cuando se borra el nodo (llamado por la escucha de $destroy)
       var removeElement = function(){
         //Call remove of scope.__binding.remove(element)
+        scope.__binding._remove(this.getAttribute("pseudo-name"));
         //Call remove of scope.__blackboard.remove(element)
         scope.__blackboard._remove(this.getAttribute("pseudo-name"));
       }
@@ -405,7 +429,7 @@
       var outputs = polymerElement.properties.outputs.value;
 
       if (!isEmpty(outputs)) {
-        $rootScope.__blackboard[elementNameRegister] = {element: element[0]};
+        $rootScope.__blackboard[elementNameRegister] = {element: element[0], name: elementNameRegister};
         for (var output in outputs) {
           // We use the name of element register for identify the output.
           // We'll replace - by _ because angular deal with it like minus symbol.

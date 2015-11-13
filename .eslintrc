@@ -21,7 +21,5 @@
     "page": true,
     "app": true,
     "window": true
-  },
-  "no-underscore-dangle": [2, { "allow": [] }]
-
+  }
 }
