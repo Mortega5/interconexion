@@ -74,8 +74,9 @@
         }
       }
     };
+    //TODO _recursiveBindingDelete
     var _recursiveBindingDelete = function(productorElement, ConsumerElement) {
-      
+
     }
 
     /**
@@ -148,8 +149,7 @@
     };
     BindingFactory.prototype._remove = function(element) {
       //TODO eliminar el elemento de ambos nodos y avisar a los nodos conectados
-      //FUTURE quiza mandar información a los nodos a los que estaba enlazado para realizar accion
-      
+      //FUTURE quiza mandar información a los nodos a los que estaba enlazado para realizar accion  
       //Delete element in inputs
       if (this.inputs[element]) {
         delete this.inputs[element];
@@ -262,6 +262,17 @@
       return elementDelete;
 
     };
+    Blackboard.prototype._getElementByBindingAttr = function(bindingAttr) {
+      var list = this._toList();
+
+      for (var index in list) {
+        for (var attr in list[index]) {
+          if (attr.charAt(0) !== "_"  && list[index][attr].bindingAttr === bindingAttr){
+            return list[index];
+          }
+        }
+      }
+    };
     return Blackboard;
   }).
 
@@ -362,6 +373,10 @@
         if (inputType !== outputType) {
           throw "Input and output type are not equals: " + inputType + " vs " + outputType;
         }
+        // TODO añadir información en inputs de objetive y en outputs del elemento de bindingAttrName
+        // necesito acceder a binding.outputs no a blackboard
+        var producerElement = scope.__blackboard._getElementByBindingAttr(bindingAttrName);
+
         var interpolationName = "{{" + bindingAttrName + "}}";
         objetive.attr(attribute, interpolationName);
         var injector = objetive.injector();
@@ -401,7 +416,8 @@
               }
             }
             return list;
-          }
+          },
+          consumerOf: []
         };
       }
       if (polymerElement.properties.outputs && !isEmpty(polymerElement.properties.outputs.value)) {
@@ -419,7 +435,8 @@
               }
             }
             return list;
-          }
+          },
+          produceTo: []
         };
       }
 
