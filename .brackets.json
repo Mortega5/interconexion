@@ -1,0 +1,6 @@
+{
+    "jscodehints.detectedExclusions": [
+        "/home/miguel/interconexion/app/bower_components/prism/components/prism-haskell.min.js",
+        "/home/miguel/interconexion/detectarBucles.js"
+    ]
+}

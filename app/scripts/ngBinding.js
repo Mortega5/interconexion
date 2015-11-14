@@ -1,3 +1,4 @@
+
 (function(window, angular){
 	"use strict";
 
@@ -164,14 +165,19 @@
 			this.outputs[producer].produceTo.push(consumer);
 		};
 		BindingFactory.prototype._removeBindingInfo = function(element, connectedElement) {
+			var index;
 			if (this.inputs[element]) {
-				var index = this.inputs[elements].consumerOf.indexOf(connectedElement);
-				this.inputs[elements].consumerOf.splice(index,1);
+				index = this.inputs[element].consumeOf.indexOf(connectedElement);
+				this.inputs[element].consumeOf.splice(index, 1);
 
-				var index = this.outputs[connectedElement].consumerOf.indexOf(element);
-				this.inputs[connectedElement].consumerOf.splice(index,1);
-			} else if (this.outputs[elements]) {
-				//TODO reverso al anterior
+				index = this.outputs[connectedElement].produceTo.indexOf(element);
+				this.outputs[connectedElement].produceTo.splice(index, 1);
+			} else if (this.outputs[element]) {
+				index = this.inputs[connectedElement].consumeOf.indexOf(element);
+				this.inputs[connectedElement].consumeOf.splice(index, 1);
+
+				index = this.outputs[element].produceTo.indexOf(connectedElement);
+				this.outputs[element].produceTo.splice(index, 1);
 			}
 		};
 		return BindingFactory;
