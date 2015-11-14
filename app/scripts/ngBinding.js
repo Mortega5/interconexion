@@ -144,8 +144,8 @@
 
 			};
 		};
-		BindingFactory.prototype._remove = function(element) {
-			//TODO eliminar el elemento de ambos nodos y avisar a los nodos conectados
+		BindingFactory.prototype._removeElement = function(element) {
+			//TODO eliminar el elemento de ambos nodos y avisar a los nodos conectados. Usar _removeBindingInfo
 			//FUTURE quiza mandar información a los nodos a los que estaba enlazado para realizar accion  
 			//Delete element in inputs
 			if (this.inputs[element]) {
@@ -268,7 +268,7 @@
 				}
 			}
 		};
-		Blackboard.prototype._remove = function(element) {
+		Blackboard.prototype._removeElement = function(element) {
 			var elementDelete = this[element];
 			if (!elementDelete) {
 				throw "ReferenceError: '" + element + "' is not defined in the Blackboard";
@@ -379,7 +379,6 @@
 					}
 				}
 			};
-			//TODO añadir información en una lista tanto en los añadidos como en los borrados de binding
 			//TODO realizar comprobación de bucles
 			//TODO comprobación de tipos compleja mediante una abstración superior (XML?)
 			scope.__addAttribute = function(objetive, attribute, bindingAttrName) {
@@ -390,12 +389,11 @@
 				if (inputType !== outputType) {
 					throw "Input and output type are not equals: " + inputType + " vs " + outputType;
 				}
-				// TODO añadir información en inputs de objetive y en outputs del elemento de bindingAttrName
-				// Añadir dos funciones auxiliares para manejar dependencias
-				// Example: addDependencia(productor, consumidor) --> añadir consumidor a productor y viceversa
+				// Add information to __binding variable
 				var producer = scope.__blackboard._getElementByBindingAttr(bindingAttrName).name;
 				var consumer = objetive.attr("pseudo-name");
 				scope.__binding._addBindingInfo(producer, consumer);
+				
 				var interpolationName = "{{" + bindingAttrName + "}}";
 				objetive.attr(attribute, interpolationName);
 				var injector = objetive.injector();
@@ -403,12 +401,12 @@
 				$compile(objetive)(objetive.scope());
 			};
 
-			//TODO Eliminar la información del elemento cuando se borra el nodo (llamado por la escucha de $destroy)
+			//TODO Eliminar la información del elemento cuando se borra el nodo (llamado por la escucha de $destroy) se debe hacer en la funcion remove
 			var removeElement = function(){
 				//Call remove of scope.__binding.remove(element)
-				scope.__binding._remove(this.getAttribute("pseudo-name"));
+				scope.__binding._removeElement(this.getAttribute("pseudo-name"));
 				//Call remove of scope.__blackboard.remove(element)
-				scope.__blackboard._remove(this.getAttribute("pseudo-name"));
+				scope.__blackboard._removeElement(this.getAttribute("pseudo-name"));
 			}
 			var polymerElement = element[0];
 			/* 1) Para primera prueba: guardamos todos los datos en una variable, tanto inputs como outputs*/
