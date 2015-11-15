@@ -147,25 +147,39 @@
 		BindingFactory.prototype._removeElement = function(element) {
 			//TODO eliminar el elemento de ambos nodos y avisar a los nodos conectados. Usar _removeBindingInfo
 			//FUTURE quiza mandar información a los nodos a los que estaba enlazado para realizar accion  
+			var bindingList, item;
 			//Delete element in inputs
 			if (this.inputs[element]) {
+				bindingList = this.inputs[element].consumeOf;
+				for (item in bindingList) {
+					this._removeBindingInfo(element, item);
+				}
 				delete this.inputs[element];
 			}
 
 			//Delete element in outputs
 			if (this.outputs[element]) {
+				bindingList = this.outputs[element].produceTo;
+				for (item in bindingList) {
+					this._removeBindingInfo(element, item);
+				}
 				delete this.outputs[element];
 			}
 			//TODO eliminar los nodos consumidores del dato que yo produzco (binding.output[element].produceTo -> object)
 
 			//TODO eliminar los nodos de los que consume datos (binding.inputs[element].consumeOf-->object)
 		};
-		BindingFactory.prototype._addBindingInfo = function(producer, consumer) {
-			this.inputs[consumer].consumeOf.push(producer);
-			this.outputs[producer].produceTo.push(consumer);
+		BindingFactory.prototype._addBindingInfo = function(producer, producerAttr, consumer, consumerAttr) {
+			// TODO cambiar esta función, se necesita almacenar información sobre el elemento cosnumidor y su attributo.
+			if (this.inputs[consumer].consumeOf.indexOf(producerAttr) > -1 && this.outputs[producer].produceTo.push(consumerAttr) > -1) {
+				throw "Error:  trying connect a consumer and a producer that they are already connected";
+			}
+			this.inputs[consumer].consumeOf.push({elementName: producer, attr: producerAttr});
+			this.outputs[producer].produceTo.push({elementName: consumer, attr: consumer});
 		};
 		BindingFactory.prototype._removeBindingInfo = function(element, connectedElement) {
 			var index;
+			// TODO cambiar este metodo, ahora se almacena información sobre el elemento y el atributo
 			if (this.inputs[element]) {
 				index = this.inputs[element].consumeOf.indexOf(connectedElement);
 				this.inputs[element].consumeOf.splice(index, 1);
@@ -392,8 +406,8 @@
 				// Add information to __binding variable
 				var producer = scope.__blackboard._getElementByBindingAttr(bindingAttrName).name;
 				var consumer = objetive.attr("pseudo-name");
-				scope.__binding._addBindingInfo(producer, consumer);
-				
+				scope.__binding._addBindingInfo(producer, attribute, consumer, bindingAttrName);
+
 				var interpolationName = "{{" + bindingAttrName + "}}";
 				objetive.attr(attribute, interpolationName);
 				var injector = objetive.injector();
@@ -409,7 +423,7 @@
 				scope.__blackboard._removeElement(this.getAttribute("pseudo-name"));
 			}
 			var polymerElement = element[0];
-			/* 1) Para primera prueba: guardamos todos los datos en una variable, tanto inputs como outputs*/
+			/* 1) guardamos todos los datos en una variable, tanto inputs como outputs*/
 
 			/* Nombramos al elemento por los atributos*/
 			var elementNameRegister = polymerElement.tagName.toLowerCase();
