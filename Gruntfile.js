@@ -11,7 +11,8 @@ module.exports = function(grunt) {
 				api: {
 					src: ["app/scripts/*.js"],
 					title: "API documentation"
-				}
+				},
+				style: []
 			},
 			all: ["./app/scripts/*.js"]
 		},
