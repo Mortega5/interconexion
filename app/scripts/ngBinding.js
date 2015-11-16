@@ -211,7 +211,7 @@
         inputElement = angular.element(document.querySelector("[pseudo-name=" + connectedElement + "]"));
         watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
         inputElement.scope().$$watchers.splice(watcherIndex, 1);
-
+        
         index = _searchBinding(connectedElement, connectedAttr, this.outputs[element].produceTo);
         this.outputs[element].produceTo.splice(index, 1);
       }
