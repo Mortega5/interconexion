@@ -153,14 +153,13 @@
     };
 
     BindingFactory.prototype._removeElement = function (element) {
-      //TODO eliminar el elemento de ambos nodos y avisar a los nodos conectados. Usar _removeBindingInfo
       //FUTURE quiza mandar información a los nodos a los que estaba enlazado para realizar accion  
       var bindingList;
       //Delete element in inputs
       if (this.inputs[element]) {
         bindingList = this.inputs[element].consumeOf;
         while(bindingList.length > 0) {
-          this._removeBindingInfo(element, bindingList[0].elementName, bindingList[0].toAttr, bindingList[0].myAttr);
+          this._removeBindingInfo(element, bindingList[0].elementName, bindingList[0].myAttr, bindingList[0].toAttr);
         }
         delete this.inputs[element];
       }
@@ -169,15 +168,12 @@
       if (this.outputs[element]) {
         bindingList = this.outputs[element].produceTo;
         while(bindingList.length > 0) {
-          this._removeBindingInfo(element, bindingList[0].elementName, bindingList[0].toAttr, bindingList[0].myAttr);
+          this._removeBindingInfo(element, bindingList[0].elementName, bindingList[0].myAttr, bindingList[0].toAttr);
         }
         delete this.outputs[element];
       }
-      //TODO eliminar los nodos consumidores del dato que yo produzco (binding.output[element].produceTo -> object)
-
-      //TODO eliminar los nodos de los que consume datos (binding.inputs[element].consumeOf-->object)
     };
-    BindingFactory.prototype._addBindingInfo = function (producer, producerAttr, consumer, consumerAttr) {
+    BindingFactory.prototype._addBindingInfo = function (producer, producerAttr, consumer, consumerAttr, watcher) {
       var indexInputs  = _searchBinding(producer, producerAttr, this.inputs[consumer].consumeOf);
       var indexOutputs  = _searchBinding(consumer, consumerAttr, this.outputs[producer].produceTo);
       if (indexInputs > -1 || indexOutputs > -1) {
@@ -186,7 +182,8 @@
       this.inputs[consumer].consumeOf.push({
         elementName: producer,
         toAttr: producerAttr,
-        myAttr: consumerAttr
+        myAttr: consumerAttr,
+        watcher: watcher
       });
       this.outputs[producer].produceTo.push({
         elementName: consumer,
@@ -194,17 +191,26 @@
         myAttr: producerAttr
       });
     };
-    BindingFactory.prototype._removeBindingInfo = function (element, connectedElement, connectedAttr, elementAttr) {
-      var index;
+    BindingFactory.prototype._removeBindingInfo = function (element, connectedElement, elementAttr, connectedAttr) {
+      var index, inputElement, bindingAttr, watcherIndex, deletedElement;
       if (this.inputs[element]) {
-        index = _searchBinding(connectedElement, connectedAttr, this.inputs[element].consumeOf)
-        this.inputs[element].consumeOf.splice(index, 1);
+        index = _searchBinding(connectedElement, connectedAttr, this.inputs[element].consumeOf);
+        deletedElement = this.inputs[element].consumeOf.splice(index, 1);
+
+        // Remove watcher for input element
+        inputElement = angular.element(document.querySelector("[pseudo-name=" + element + "]"));
+        watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
+        inputElement.scope().$$watchers.splice(watcherIndex, 1);
 
         index = _searchBinding(element, elementAttr, this.outputs[connectedElement].produceTo);
         this.outputs[connectedElement].produceTo.splice(index, 1);
       } else if (this.outputs[element]) {
         index = _searchBinding(element, elementAttr, this.inputs[connectedElement].consumeOf);
-        this.inputs[connectedElement].consumeOf.splice(index, 1);
+        deletedElement = this.inputs[connectedElement].consumeOf.splice(index, 1);
+
+        inputElement = angular.element(document.querySelector("[pseudo-name=" + connectedElement + "]"));
+        watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
+        inputElement.scope().$$watchers.splice(watcherIndex, 1);
 
         index = _searchBinding(connectedElement, connectedAttr, this.outputs[element].produceTo);
         this.outputs[element].produceTo.splice(index, 1);
@@ -300,9 +306,6 @@
     };
     Blackboard.prototype._removeElement = function (element) {
       var elementDelete = this[element];
-      if (!elementDelete) {
-        throw "ReferenceError: '" + element + "' is not defined in the Blackboard";
-      }
       delete this[element];
 
       return elementDelete;
@@ -424,16 +427,34 @@
         // Add information to __binding variable
         var producer = scope.__blackboard._getElementByBindingAttr(bindingAttrName).name;
         var consumer = objetive.attr("pseudo-name");
-        scope.__binding._addBindingInfo(producer, attribute, consumer, bindingAttrName);
+        
 
         var interpolationName = "{{" + bindingAttrName + "}}";
         objetive.attr(attribute, interpolationName);
         var injector = objetive.injector();
         var $compile = injector.get("$compile");
         $compile(objetive)(objetive.scope());
+        // NOTE we used the first watcher of the scope, we take over that it is the watcher of the binding
+        var watcher = objetive.scope().$$watchers[0];
+        scope.__binding._addBindingInfo(producer, attribute, consumer, bindingAttrName.split("_")[0], watcher);
+      
+      };
+      scope.__disconnectAttributes = function(element, elementAttr, connect, connectAttr) {
+          $rootScope.__binding._removeBindingInfo(element, connect, elementAttr, connectAttr);
+          var inputElement = angular.element(document.querySelector("[pseudo-name=" + connect + "]"));
+      }
+      scope.__removeElement = function(element) {
+        if (typeof(element) == "object") {
+          scope.$apply(function(){
+            angular.element(element).remove();
+          });
+        } else {
+          scope.$apply(function(){
+            angular.element(document.querySelector("[pseudo-name=" + element + "]")).remove();
+          });
+        }
       };
 
-      //TODO Eliminar la información del elemento cuando se borra el nodo (llamado por la escucha de $destroy) se debe hacer en la funcion remove
       var removeElement = function () {
         //Call remove of scope.__binding.remove(element)
         scope.__binding._removeElement(this.getAttribute("pseudo-name"));
@@ -512,6 +533,7 @@
       /* Fase 2: Añadir atributos al componente para que empiece a emitir información por esa variable */
       for (var attr in outputs) {
         var bindingAttr = $rootScope.__blackboard[elementNameRegister][attr].bindingAttr;
+        $rootScope.bindingAttr = "";
         element.attr(attr, "{{" + bindingAttr + "}}");
       }
 

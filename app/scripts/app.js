@@ -11,6 +11,11 @@ app.controller("myController", ["$scope", function($scope){
     var bindingAttr = $scope.__blackboard[data.outputElement][data.outputAttr].bindingAttr;
     element.scope().__addAttribute(element, data.inputAttr, bindingAttr);
   };
+  
+  $scope.disconnect = function(data) {
+    var element = $scope.__binding.inputs[data.inputElement].element;
+    element.scope().__disconnectAttributes(data.outputElement, data.outputAttr, data.inputElement, data.inputAttr);
+  }
 
 }]);
 
