@@ -155,12 +155,12 @@
     BindingFactory.prototype._removeElement = function (element) {
       //TODO eliminar el elemento de ambos nodos y avisar a los nodos conectados. Usar _removeBindingInfo
       //FUTURE quiza mandar información a los nodos a los que estaba enlazado para realizar accion  
-      var bindingList, item;
+      var bindingList;
       //Delete element in inputs
       if (this.inputs[element]) {
         bindingList = this.inputs[element].consumeOf;
-        for (item in bindingList) {
-          this._removeBindingInfo(element, item.elementName, item.toAttr, item.myAttr);
+        while(bindingList.length > 0) {
+          this._removeBindingInfo(element, bindingList[0].elementName, bindingList[0].toAttr, bindingList[0].myAttr);
         }
         delete this.inputs[element];
       }
@@ -168,8 +168,8 @@
       //Delete element in outputs
       if (this.outputs[element]) {
         bindingList = this.outputs[element].produceTo;
-        for (item in bindingList) {
-          this._removeBindingInfo(element, item.elementName, item.toAttr, item.myAttr);
+        while(bindingList.length > 0) {
+          this._removeBindingInfo(element, bindingList[0].elementName, bindingList[0].toAttr, bindingList[0].myAttr);
         }
         delete this.outputs[element];
       }
@@ -206,7 +206,7 @@
         index = _searchBinding(element, elementAttr, this.inputs[connectedElement].consumeOf);
         this.inputs[connectedElement].consumeOf.splice(index, 1);
 
-        index = _searchBinding(connectedElement, connectedAttr, this.outputs[element].produceTo.indexOf);
+        index = _searchBinding(connectedElement, connectedAttr, this.outputs[element].produceTo);
         this.outputs[element].produceTo.splice(index, 1);
       }
     };
@@ -369,7 +369,7 @@
           observer.observe(element[0], {
             attributes: true
           });
-          scope.$on('$destroy', observer.disconnect.bind(observer));
+          scope.$on("$destroy", observer.disconnect.bind(observer));
         }
       }
     };
