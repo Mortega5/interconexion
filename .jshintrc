@@ -1,5 +1,9 @@
 {
   "extends": ".jshintrc-base",
   "node": true,
-  "globals": {}
+  "globals": {
+    "document": true,
+    "MutationObserver": true,
+    "angular": true
+  }
 }

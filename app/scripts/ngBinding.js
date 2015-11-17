@@ -1,7 +1,6 @@
-(function (window, angular) {
-	"use strict";
+"use strict";
 
-	/**
+/**
    * @ngdoc overview
    * @name ngBinding
    * @description
@@ -22,68 +21,68 @@
    * <my-element bind-polymer register-variable></my-element>
    * </pre>
    */
-	angular.module("ngBinding", ["ng"]).
-	/**
+angular.module("ngBinding", ["ng"]).
+/**
      * @ngdoc service
      * @name ngBinding.BindingFactory
      * @description
      * Use `BindingFactory` to create a new Binding object.
      */
-	factory("BindingFactory", function () {
+factory("BindingFactory", function () {
 
 
-		var _isEmpty = function () {
-			if (this == null) {
-				return true;
-			}
-			if (this.length > 0) {
-				return false;
-			}
-			if (this.length === 0) {
-				return true;
-			}
+  var _isEmpty = function () {
+    if (this === null) {
+      return true;
+    }
+    if (this.length > 0) {
+      return false;
+    }
+    if (this.length === 0) {
+      return true;
+    }
 
-			// Otherwise, does it have any properties of its own?
-			// that this doesn't handle
-			// toString and valueOf enumeration bugs in IE < 9
-			for (var key in this) {
-				if (hasOwnProperty.call(this, key) && key.charAt(0) !== "_") {
-					return false;
-				}
-			}
+    // Otherwise, does it have any properties of its own?
+    // that this doesn't handle
+    // toString and valueOf enumeration bugs in IE < 9
+    for (var key in this) {
+      if (hasOwnProperty.call(this, key) && key.charAt(0) !== "_") {
+        return false;
+      }
+    }
 
-			return true;
-		};
-		var _toList = function () {
-			var list = [];
-			for (var key in this) {
-				if (key.charAt(0) !== "_" && key.charAt(0) !== "$") {
-					list.push(this[key]);
-				}
-			}
-			return list;
-		};
-		var _getTypeOfAttr = function (element, attrToSearch) {
-			for (var key in this) {
-				if (key.charAt(0) !== "_" && this[key].element === element && key.charAt(0) !== "$") {
-					for (var attr in this[key].attrs) {
-						if (attr === attrToSearch) {
-							return this[key].attrs[attr].type;
-						}
-					}
-				}
-			}
-		};
-		var _searchBinding = function (from, fromAttr, list) {
-			for (var i = 0; i < list.length; i++) {
-				if (list[i].elementName === from && list[i].toAttr === fromAttr) {
-					return i;
-				}
-			}
-			return -1;
-		};
+    return true;
+  };
+  var _toList = function () {
+    var list = [];
+    for (var key in this) {
+      if (key.charAt(0) !== "_" && key.charAt(0) !== "$") {
+        list.push(this[key]);
+      }
+    }
+    return list;
+  };
+  var _getTypeOfAttr = function (element, attrToSearch) {
+    for (var key in this) {
+      if (key.charAt(0) !== "_" && this[key].element === element && key.charAt(0) !== "$") {
+        for (var attr in this[key].attrs) {
+          if (attr === attrToSearch) {
+            return this[key].attrs[attr].type;
+          }
+        }
+      }
+    }
+  };
+  var _searchBinding = function (from, fromAttr, list) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].elementName === from && list[i].toAttr === fromAttr) {
+        return i;
+      }
+    }
+    return -1;
+  };
 
-		/**
+  /**
        * @ngdoc
        * @name ngBinding.BindingFactory#BindingFactory
        * @methodOf ngBinding.BindingFactory
@@ -152,20 +151,20 @@
        * `bind-polymer` and `register-variable`
        */
 
-		var BindingFactory = function () {
-			this.inputs = {
-				_isEmpty: _isEmpty,
-				_toList: _toList,
-				_getTypeOfAttr: _getTypeOfAttr
-			};
-			this.outputs = {
-				_isEmpty: _isEmpty,
-				_toList: _toList,
-				_getTypeOfAttr: _getTypeOfAttr
+  var BindingFactory = function () {
+    this.inputs = {
+      _isEmpty: _isEmpty,
+      _toList: _toList,
+      _getTypeOfAttr: _getTypeOfAttr
+    };
+    this.outputs = {
+      _isEmpty: _isEmpty,
+      _toList: _toList,
+      _getTypeOfAttr: _getTypeOfAttr
 
-			};
-		};
-		/**
+    };
+  };
+  /**
        * @ngdoc function
        * @name ngBinding.BindingFactory#_removeElement
        * @methodOf ngBinding.BindingFactory
@@ -178,28 +177,28 @@
 			 * Use `_removeBindingInfo`
 			 * @param {string} elementName The new name of the element (pseudo-name).
 			 */
-		BindingFactory.prototype._removeElement = function (elementName) {
-			//FUTURE quiza mandar información a los nodos a los que estaba enlazado para realizar accion  
-			var bindingList;
-			//Delete element in inputs
-			if (this.inputs[elementName]) {
-				bindingList = this.inputs[elementName].consumeOf;
-				while(bindingList.length > 0) {
-					this._removeBindingInfo(elementName, bindingList[0].elementName, bindingList[0].myAttr, bindingList[0].toAttr);
-				}
-				delete this.inputs[elementName];
-			}
+  BindingFactory.prototype._removeElement = function (elementName) {
+    //FUTURE quiza mandar información a los nodos a los que estaba enlazado para realizar accion  
+    var bindingList;
+    //Delete element in inputs
+    if (this.inputs[elementName]) {
+      bindingList = this.inputs[elementName].consumeOf;
+      while(bindingList.length > 0) {
+        this._removeBindingInfo(elementName, bindingList[0].elementName, bindingList[0].myAttr, bindingList[0].toAttr);
+      }
+      delete this.inputs[elementName];
+    }
 
-			//Delete element in outputs
-			if (this.outputs[elementName]) {
-				bindingList = this.outputs[elementName].produceTo;
-				while(bindingList.length > 0) {
-					this._removeBindingInfo(elementName, bindingList[0].elementName, bindingList[0].myAttr, bindingList[0].toAttr);
-				}
-				delete this.outputs[elementName];
-			}
-		};
-		/**
+    //Delete element in outputs
+    if (this.outputs[elementName]) {
+      bindingList = this.outputs[elementName].produceTo;
+      while(bindingList.length > 0) {
+        this._removeBindingInfo(elementName, bindingList[0].elementName, bindingList[0].myAttr, bindingList[0].toAttr);
+      }
+      delete this.outputs[elementName];
+    }
+  };
+  /**
        * @ngdoc function
        * @name ngBinding.BindingFactory#_addBindingInfo
        * @methodOf ngBinding.BindingFactory
@@ -258,29 +257,29 @@
 			 * @param {string} consumerAttr The attribute name where the data is bound.
 			 * @param {object} watcher The `watcher` that Angular use to listen producer attribute changes.
 			 */
-		BindingFactory.prototype._addBindingInfo = function (producer, producerAttr, consumer, consumerAttr, watcher) {
-			// Check if already exist the binding between producer-producerAttr and cosumer-consumerAttr
-			var indexInputs  = _searchBinding(producer, producerAttr, this.inputs[consumer].consumeOf);
-			var indexOutputs  = _searchBinding(consumer, consumerAttr, this.outputs[producer].produceTo);
-			if (indexInputs > -1 || indexOutputs > -1) {
-				throw "Error: trying connect a consumer and a producer that they are already connected";
-			}
-			// Add to information about the producer to the consumer 
-			this.inputs[consumer].consumeOf.push({
-				elementName: producer,
-				toAttr: producerAttr,
-				myAttr: consumerAttr,
-				watcher: watcher
-			});
-			// Add to information about the consumer to the producer
-			this.outputs[producer].produceTo.push({
-				elementName: consumer,
-				toAttr: consumerAttr,
-				myAttr: producerAttr
-			});
-		};
+  BindingFactory.prototype._addBindingInfo = function (producer, producerAttr, consumer, consumerAttr, watcher) {
+    // Check if already exist the binding between producer-producerAttr and cosumer-consumerAttr
+    var indexInputs  = _searchBinding(producer, producerAttr, this.inputs[consumer].consumeOf);
+    var indexOutputs  = _searchBinding(consumer, consumerAttr, this.outputs[producer].produceTo);
+    if (indexInputs > -1 || indexOutputs > -1) {
+      throw "Error: trying connect a consumer and a producer that they are already connected";
+    }
+    // Add to information about the producer to the consumer 
+    this.inputs[consumer].consumeOf.push({
+      elementName: producer,
+      toAttr: producerAttr,
+      myAttr: consumerAttr,
+      watcher: watcher
+    });
+    // Add to information about the consumer to the producer
+    this.outputs[producer].produceTo.push({
+      elementName: consumer,
+      toAttr: consumerAttr,
+      myAttr: producerAttr
+    });
+  };
 
-		/**
+  /**
       * @ngdoc function
       * @name ngBinding.BindingFactory#_removeBindingInfo
       * @methodOf ngBinding.BindingFactory
@@ -299,52 +298,52 @@
 			* @param {string} elementAttr The attribute name of the first element (elementName) that it will be deleted
 			* @param {string} connectedAttr The attribute name of the second element (connectedElement) that it will be deleted
 			*/
-		BindingFactory.prototype._removeBindingInfo = function (elementName, connectedName, elementAttr, connectedAttr) {
-			var index, inputElement, bindingAttr, watcherIndex, deletedElement;
-			// If the first element is a input
-			if (this.inputs[elementName]) {
-				
-				// Remove binding for input element
-				index = _searchBinding(connectedName, connectedAttr, this.inputs[elementName].consumeOf);
-				deletedElement = this.inputs[elementName].consumeOf.splice(index, 1);
+  BindingFactory.prototype._removeBindingInfo = function (elementName, connectedName, elementAttr, connectedAttr) {
+    var index, inputElement, watcherIndex, deletedElement;
+    // If the first element is a input
+    if (this.inputs[elementName]) {
 
-				// Remove watcher for input element
-				inputElement = angular.element(document.querySelector("[pseudo-name=" + elementName + "]"));
-				watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
-				inputElement.scope().$$watchers.splice(watcherIndex, 1);
-				
-				// Remove binding for output element
-				index = _searchBinding(elementName, elementAttr, this.outputs[connectedName].produceTo);
-				this.outputs[connectedName].produceTo.splice(index, 1);
-				
-				// If the first element is a outputs
-			} else if (this.outputs[elementName]) {
-				// Remove binding for input element
-				index = _searchBinding(elementName, elementAttr, this.inputs[connectedName].consumeOf);
-				deletedElement = this.inputs[connectedName].consumeOf.splice(index, 1);
-				
-				// Remove watcher for input element
-				inputElement = angular.element(document.querySelector("[pseudo-name=" + connectedName + "]"));
-				watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
-				inputElement.scope().$$watchers.splice(watcherIndex, 1);
+      // Remove binding for input element
+      index = _searchBinding(connectedName, connectedAttr, this.inputs[elementName].consumeOf);
+      deletedElement = this.inputs[elementName].consumeOf.splice(index, 1);
 
-				// Remove binding for output element
-				index = _searchBinding(connectedName, connectedAttr, this.outputs[elementName].produceTo);
-				this.outputs[elementName].produceTo.splice(index, 1);
-			}
-		};
-		return BindingFactory;
-	}).
-	/**
+      // Remove watcher for input element
+      inputElement = angular.element(document.querySelector("[pseudo-name=" + elementName + "]"));
+      watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
+      inputElement.scope().$$watchers.splice(watcherIndex, 1);
+
+      // Remove binding for output element
+      index = _searchBinding(elementName, elementAttr, this.outputs[connectedName].produceTo);
+      this.outputs[connectedName].produceTo.splice(index, 1);
+
+      // If the first element is a outputs
+    } else if (this.outputs[elementName]) {
+      // Remove binding for input element
+      index = _searchBinding(elementName, elementAttr, this.inputs[connectedName].consumeOf);
+      deletedElement = this.inputs[connectedName].consumeOf.splice(index, 1);
+
+      // Remove watcher for input element
+      inputElement = angular.element(document.querySelector("[pseudo-name=" + connectedName + "]"));
+      watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
+      inputElement.scope().$$watchers.splice(watcherIndex, 1);
+
+      // Remove binding for output element
+      index = _searchBinding(connectedName, connectedAttr, this.outputs[elementName].produceTo);
+      this.outputs[elementName].produceTo.splice(index, 1);
+    }
+  };
+  return BindingFactory;
+}).
+/**
      * @ngdoc service
      * @name ngBinding.Blackboard
      * @description
      * Use `Blackboard` to create a new Blackboard object. We will use this object to register all 
      * the outputs with them binding variables.
      */
-	factory("Blackboard", function () {
+factory("Blackboard", function () {
 
-		/**
+  /**
      * @ngdoc
      * @name ngBinding.Blackboard#Blackboard
      * @methodOf ngBinding.Blackboard
@@ -375,294 +374,300 @@
      * - `_getTypeOfBindingAttr(bindingName)`: return the type of the binding variable. It need the name of the variable.
      *
      */
-		var Blackboard = function () {};
-		Blackboard.prototype._isEmpty = function () {
-			// null and undefined are "empty"
-			if (this == null) {
-				return true;
-			}
-			// Assume if it has a length property with a non-zero value
-			// that that property is correct.
-			if (this.length > 0) {
-				return false;
-			}
-			if (this.length === 0) {
-				return true;
-			}
+  var Blackboard = function () {};
+  Blackboard.prototype._isEmpty = function () {
+    // null and undefined are "empty"
+    if (this === null) {
+      return true;
+    }
+    // Assume if it has a length property with a non-zero value
+    // that that property is correct.
+    if (this.length > 0) {
+      return false;
+    }
+    if (this.length === 0) {
+      return true;
+    }
 
-			// Otherwise, does it have any properties of its own?
-			// that this doesn't handle
-			// toString and valueOf enumeration bugs in IE < 9
-			for (var key in this) {
-				if (hasOwnProperty.call(this, key) && key.charAt(0) !== "_" && key.charAt(0) !== "$") {
-					return false;
-				}
-			}
+    // Otherwise, does it have any properties of its own?
+    // that this doesn't handle
+    // toString and valueOf enumeration bugs in IE < 9
+    for (var key in this) {
+      if (hasOwnProperty.call(this, key) && key.charAt(0) !== "_" && key.charAt(0) !== "$") {
+        return false;
+      }
+    }
 
-			return true;
-		};
-		Blackboard.prototype._toList = function () {
-			var list = [];
-			for (var key in this) {
-				if (key.charAt(0) !== "_" && key.charAt(0) !== "$") {
-					list.push(this[key]);
-				}
-			}
-			return list;
-		};
-		Blackboard.prototype._getTypeOfBindingAttr = function (bindingName) {
-			var list = this._toList();
+    return true;
+  };
+  Blackboard.prototype._toList = function () {
+    var list = [];
+    for (var key in this) {
+      if (key.charAt(0) !== "_" && key.charAt(0) !== "$") {
+        list.push(this[key]);
+      }
+    }
+    return list;
+  };
+  Blackboard.prototype._getTypeOfBindingAttr = function (bindingName) {
+    var list = this._toList();
 
-			for (var index in list) {
-				for (var attr in list[index]) {
-					if (attr.charAt(0) !== "_" && list[index][attr].bindingAttr === bindingName) {
-						return list[index][attr].type
-					}
-				}
-			}
-		};
-		Blackboard.prototype._removeElement = function (element) {
-			var elementDelete = this[element];
-			delete this[element];
+    for (var index in list) {
+      for (var attr in list[index]) {
+        if (attr.charAt(0) !== "_" && list[index][attr].bindingAttr === bindingName) {
+          return list[index][attr].type;
+        }
+      }
+    }
+  };
+  Blackboard.prototype._removeElement = function (element) {
+    var elementDelete = this[element];
+    delete this[element];
 
-			return elementDelete;
+    return elementDelete;
 
-		};
-		Blackboard.prototype._getElementByBindingAttr = function (bindingAttr) {
-			var list = this._toList();
+  };
+  Blackboard.prototype._getElementByBindingAttr = function (bindingAttr) {
+    var list = this._toList();
 
-			for (var index in list) {
-				for (var attr in list[index]) {
-					if (attr.charAt(0) !== "_" && list[index][attr].bindingAttr === bindingAttr) {
-						return list[index];
-					}
-				}
-			}
-		};
-		return Blackboard;
-	}).
+    for (var index in list) {
+      for (var attr in list[index]) {
+        if (attr.charAt(0) !== "_" && list[index][attr].bindingAttr === bindingAttr) {
+          return list[index];
+        }
+      }
+    }
+  };
+  return Blackboard;
+}).
 
-	run(function ($rootScope, BindingFactory, Blackboard) {
-		$rootScope.__binding = new BindingFactory();
-		$rootScope.__blackboard = new Blackboard();
-	}).
+run(function ($rootScope, BindingFactory, Blackboard) {
+  $rootScope.__binding = new BindingFactory();
+  $rootScope.__blackboard = new Blackboard();
+}).
 
-	directive("bindPolymer", ["$parse", function ($parse) {
-		return {
-			restrict: 'A',
-			scope: false,
-			compile: function bindPolymerCompile(el, attr) {
-				var attrMap = {};
+directive("bindPolymer", ["$parse", function ($parse) {
+  return {
+    restrict: 'A',
+    scope: false,
+    compile: function bindPolymerCompile(el, attr) {
+      var attrMap = {};
 
-				for (var prop in attr) {
-					if (angular.isString(attr[prop])) {
-						var _match = attr[prop].match(/\{\{\s*([\.\w]+)\s*\}\}/);
-						if (_match) {
-							attrMap[prop] = $parse(_match[1]);
-						}
-					}
-				}
-				return function bindPolymerLink(scope, element, attrs) {
+      for (var prop in attr) {
+        if (angular.isString(attr[prop])) {
+          var _match = attr[prop].match(/\{\{\s*([\.\w]+)\s*\}\}/);
+          if (_match) {
+            attrMap[prop] = $parse(_match[1]);
+          }
+        }
+      }
+      return function bindPolymerLink(scope, element) {
 
-					// When Polymer sees a change to the bound variable,
-					// $apply / $digest the changes here in Angular
-					var observer = new MutationObserver(function polymerMutationObserver(mutations) {
-						scope.$apply(function processMutationsHandler() {
-							mutations.forEach(function processMutation(mutation) {
+        // When Polymer sees a change to the bound variable,
+        // $apply / $digest the changes here in Angular
+        var observer = new MutationObserver(function polymerMutationObserver(mutations) {
+          scope.$apply(function processMutationsHandler() {
+            mutations.forEach(function processMutation(mutation) {
 
-								var attributeName, newValue, oldValue, getter;
-								attributeName = mutation.attributeName;
+              var attributeName, newValue, oldValue, getter;
+              attributeName = mutation.attributeName;
 
-								if (attributeName in attrMap) {
-									newValue = element.attr(attributeName);
-									getter = attrMap[attributeName];
-									oldValue = getter(scope);
+              if (attributeName in attrMap) {
+                newValue = element.attr(attributeName);
+                getter = attrMap[attributeName];
+                oldValue = getter(scope);
 
-									if (oldValue != newValue && angular.isFunction(getter.assign)) {
-										getter.assign(scope, newValue);
-									}
-								}
-							});
-						});
-					});
+                if (oldValue != newValue && angular.isFunction(getter.assign)) {
+                  getter.assign(scope, newValue);
+                }
+              }
+            });
+          });
+        });
 
-					observer.observe(element[0], {
-						attributes: true
-					});
-					scope.$on("$destroy", observer.disconnect.bind(observer));
-				}
-			}
-		};
-	}]).
+        observer.observe(element[0], {
+          attributes: true
+        });
+        scope.$on("$destroy", observer.disconnect.bind(observer));
+      };
+    }
+  };
+}]).
 
-	directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $compile) {
+directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $compile) {
 
-		// TODO filtros para los elementos elegibles (¿delegar en el usuario?)
-		function link(scope, element) {
-			var isEmpty = function (obj) {
+  // TODO filtros para los elementos elegibles (¿delegar en el usuario?)
+  function link(scope, element) {
+    var isEmpty = function (obj) {
 
-				if (obj == null) {
-					return true;
-				}
-				if (obj.length > 0) {
-					return false;
-				}
-				if (obj.length === 0) {
-					return true;
-				}
+      if (obj === null) {
+        return true;
+      }
+      if (obj.length > 0) {
+        return false;
+      }
+      if (obj.length === 0) {
+        return true;
+      }
 
-				// Otherwise, does it have any properties of its own?
-				// that this doesn't handle
-				// toString and valueOf enumeration bugs in IE < 9
-				for (var key in obj) {
-					if (hasOwnProperty.call(obj, key)) {
-						return false;
-					}
-				}
+      // Otherwise, does it have any properties of its own?
+      // that this doesn't handle
+      // toString and valueOf enumeration bugs in IE < 9
+      for (var key in obj) {
+        if (hasOwnProperty.call(obj, key)) {
+          return false;
+        }
+      }
 
-				return true;
+      return true;
 
-			};
-			var getMe = function (sought) {
-				var list = document.getElementsByTagName(sought.tagName);
-				for (var index in list) {
-					if (list[index] === sought) {
-						return index;
-					}
-				}
-			};
-			//TODO realizar comprobación de bucles
-			//TODO comprobación de tipos compleja mediante una abstración superior (XML?)
-			scope.__addAttribute = function (objetive, attribute, bindingAttrName) {
-				//TODO Comprobar existencia de ambas partes en las estructuras binding y blackboard
-				//Check type of element
-				var inputType = scope.__binding.inputs._getTypeOfAttr(objetive, attribute);
-				var outputType = scope.__blackboard._getTypeOfBindingAttr(bindingAttrName);
-				if (inputType !== outputType) {
-					throw "Input and output type are not equals: " + inputType + " vs " + outputType;
-				}
-				// Add information to __binding variable
-				var producer = scope.__blackboard._getElementByBindingAttr(bindingAttrName).name;
-				var consumer = objetive.attr("pseudo-name");
+    };
+    var getMe = function (sought) {
+      var list = document.getElementsByTagName(sought.tagName);
+      for (var index in list) {
+        if (list[index] === sought) {
+          return index;
+        }
+      }
+    };
+    scope.__addAttribute = function (objetive, attribute, bindingAttrName) {
+      
+      //FUTURE check complex type through higher abstraction
+      //Check type of element 
+      var inputType = scope.__binding.inputs._getTypeOfAttr(objetive, attribute);
+      var outputType = scope.__blackboard._getTypeOfBindingAttr(bindingAttrName);
+      if (inputType !== outputType) {
+        throw "Input and output type are not equals: " + inputType + " vs " + outputType;
+      }
+      
+      //TODO comprobar bucles
+      
+      // Add information to __binding variable
+      var producer = scope.__blackboard._getElementByBindingAttr(bindingAttrName).name;
+      var consumer = objetive.attr("pseudo-name");
 
+      // Interpolate the new information and re-compile with the binding.
+      var interpolationName = "{{" + bindingAttrName + "}}";
+      objetive.attr(attribute, interpolationName);
+      var injector = objetive.injector();
+      var $compile = injector.get("$compile");
+      $compile(objetive)(objetive.scope());
+      
+      // NOTE we used the first watcher of the scope, we assume that it is the watcher of the binding
+      var watcher = objetive.scope().$$watchers[0];
+      scope.__binding._addBindingInfo(producer, attribute, consumer, bindingAttrName.split("_")[0], watcher);
 
-				var interpolationName = "{{" + bindingAttrName + "}}";
-				objetive.attr(attribute, interpolationName);
-				var injector = objetive.injector();
-				var $compile = injector.get("$compile");
-				$compile(objetive)(objetive.scope());
-				// NOTE we used the first watcher of the scope, we take over that it is the watcher of the binding
-				var watcher = objetive.scope().$$watchers[0];
-				scope.__binding._addBindingInfo(producer, attribute, consumer, bindingAttrName.split("_")[0], watcher);
+    };
+    scope.__disconnectAttributes = function(element, elementAttr, connect, connectAttr) {
+      $rootScope.__binding._removeBindingInfo(element, connect, elementAttr, connectAttr);
+    };
+    scope.__removeElement = function(element) {
+      if (typeof(element) == "object") {
+        scope.$apply(function(){
+          angular.element(element).remove();
+        });
+      } else {
+        scope.$apply(function(){
+          angular.element(document.querySelector("[pseudo-name=" + element + "]")).remove();
+        });
+      }
+    };
+    
+    var removeElement = function () {
+      //Call remove of scope.__binding.remove(element)
+      scope.__binding._removeElement(this.getAttribute("pseudo-name"));
+      //Call remove of scope.__blackboard.remove(element)
+      scope.__blackboard._removeElement(this.getAttribute("pseudo-name"));
+    };
+    var polymerElement = element[0];
+    
+    /* 1) Storages data about inputs and outputs in the binding variable */
 
-			};
-			scope.__disconnectAttributes = function(element, elementAttr, connect, connectAttr) {
-				$rootScope.__binding._removeBindingInfo(element, connect, elementAttr, connectAttr);
-				var inputElement = angular.element(document.querySelector("[pseudo-name=" + connect + "]"));
-			}
-			scope.__removeElement = function(element) {
-				if (typeof(element) == "object") {
-					scope.$apply(function(){
-						angular.element(element).remove();
-					});
-				} else {
-					scope.$apply(function(){
-						angular.element(document.querySelector("[pseudo-name=" + element + "]")).remove();
-					});
-				}
-			};
+    // new pseudo-name element
+    var elementNameRegister = polymerElement.tagName.toLowerCase();
+    // get the number of the same element there are in the dashboard
+    var nElement = getMe(polymerElement);
+    elementNameRegister += "_" + nElement;
+    
+    if (!polymerElement.properties || !polymerElement.properties.inputs || !polymerElement.properties.outputs) {
+      throw "The element has not inputs or outputs properties";
+    }
+    // FUTURE añadir una funcion en binding para hacer el push de elementos inputs
+    if (polymerElement.properties.inputs && !isEmpty(polymerElement.properties.inputs.value)) {
+      $rootScope.__binding.inputs[elementNameRegister] = {
+        attrs: polymerElement.properties.inputs.value,
+        element: element,
+        name: elementNameRegister,
+        _toListAttrs: function () {
+          var list = [];
+          for (var key in this.attrs) {
+            if (key.charAt(0) !== "_" && key.charAt(0) !== "$") {
+              var element = this.attrs[key];
+              element.name = key;
+              list.push(element);
+            }
+          }
+          return list;
+        },
+        consumeOf: []
+      };
+    }
+    // FUTURE añadir una funcion en binding para hacer push de elementos outputs
+    if (polymerElement.properties.outputs && !isEmpty(polymerElement.properties.outputs.value)) {
+      $rootScope.__binding.outputs[elementNameRegister] = {
+        attrs: polymerElement.properties.outputs.value,
+        element: element[0],
+        name: elementNameRegister,
+        _toListAttrs: function () {
+          var list = [];
+          for (var key in this.attrs) {
+            if (key.charAt(0) !== "_" && key.charAt(0) !== "$") {
+              var element = this.attrs[key];
+              element.name = key;
+              list.push(element);
+            }
+          }
+          return list;
+        },
+        produceTo: []
+      };
+    }
 
-			var removeElement = function () {
-				//Call remove of scope.__binding.remove(element)
-				scope.__binding._removeElement(this.getAttribute("pseudo-name"));
-				//Call remove of scope.__blackboard.remove(element)
-				scope.__blackboard._removeElement(this.getAttribute("pseudo-name"));
-			}
-			var polymerElement = element[0];
-			/* 1) guardamos todos los datos en una variable, tanto inputs como outputs*/
+    //2) Add new biniding information in the blackboard 
 
-			/* Nombramos al elemento por los atributos*/
-			var elementNameRegister = polymerElement.tagName.toLowerCase();
-			// Contabilizar las veces que esta este elemento en inputs y outputs
-			var nElement = getMe(polymerElement);
-			elementNameRegister += "_" + nElement;
+    // Phase 1: register variables in the blackboard to know who is producing data and where it does.
+    var outputs = polymerElement.properties.outputs.value;
+    var bindingAttr;
+    if (!isEmpty(outputs)) {
+      $rootScope.__blackboard[elementNameRegister] = {
+        element: element[0],
+        name: elementNameRegister
+      };
+      for (var output in outputs) {
+        // We use the pseudo-name for identify the output.
+        // We'll replace - by _ because Angular deal with it like minus symbol.
+        bindingAttr = output + "_" + elementNameRegister.replace(/-/g, "_");
+        $rootScope.__blackboard[elementNameRegister][output] = outputs[output];
+        $rootScope.__blackboard[elementNameRegister][output].bindingAttr = bindingAttr;
+      }
 
-			/* Guardamos los inputs y los outputs */
-			if (polymerElement.properties.inputs && !isEmpty(polymerElement.properties.inputs.value)) {
-				$rootScope.__binding.inputs[elementNameRegister] = {
-					attrs: polymerElement.properties.inputs.value,
-					element: element,
-					name: elementNameRegister,
-					_toListAttrs: function () {
-						var list = [];
-						for (var key in this.attrs) {
-							if (key.charAt(0) !== "_" && key.charAt(0) !== "$") {
-								var element = this.attrs[key]
-								element.name = key;
-								list.push(element);
-							}
-						}
-						return list;
-					},
-					consumeOf: []
-				};
-			}
-			if (polymerElement.properties.outputs && !isEmpty(polymerElement.properties.outputs.value)) {
-				$rootScope.__binding.outputs[elementNameRegister] = {
-					attrs: polymerElement.properties.outputs.value,
-					element: element[0],
-					name: elementNameRegister,
-					_toListAttrs: function () {
-						var list = [];
-						for (var key in this.attrs) {
-							if (key.charAt(0) !== "_" && key.charAt(0) !== "$") {
-								var element = this.attrs[key]
-								element.name = key;
-								list.push(element);
-							}
-						}
-						return list;
-					},
-					produceTo: []
-				};
-			}
+    }
 
-			/*2) modelo para intentar la idea de blackboard */
-
-			/* Fase 1: registrar las variables en la blackboard para saber quien esta produciendo datos y por donde */
-			var outputs = polymerElement.properties.outputs.value;
-
-			if (!isEmpty(outputs)) {
-				$rootScope.__blackboard[elementNameRegister] = {
-					element: element[0],
-					name: elementNameRegister
-				};
-				for (var output in outputs) {
-					// We use the name of element register for identify the output.
-					// We'll replace - by _ because angular deal with it like minus symbol.
-					var bindingAttr = output + "_" + elementNameRegister.replace(/-/g, "_");
-					$rootScope.__blackboard[elementNameRegister][output] = outputs[output];
-					$rootScope.__blackboard[elementNameRegister][output].bindingAttr = bindingAttr;
-				}
-
-			}
-
-			/* Fase 2: Añadir atributos al componente para que empiece a emitir información por esa variable */
-			for (var attr in outputs) {
-				var bindingAttr = $rootScope.__blackboard[elementNameRegister][attr].bindingAttr;
-				$rootScope.bindingAttr = "";
-				element.attr(attr, "{{" + bindingAttr + "}}");
-			}
-
-			/* Fase 3: recompilamos el componente con los binding de angularjs*/
-			element.attr("pseudo-name", elementNameRegister);
-			element.attr("bind-polymer", "");
-			element.on("$destroy", removeElement);
-			element.removeAttr("register-variable");
-			$compile(element)(scope);
-		}
-		return {
-			link: link
-		};
-	}]);
-})(window, window.angular);
+    // Phase 2: Add attributes to component for it begins to produce information in it.
+    for (var attr in outputs) {
+      bindingAttr = $rootScope.__blackboard[elementNameRegister][attr].bindingAttr;
+      $rootScope.bindingAttr = "";
+      element.attr(attr, "{{" + bindingAttr + "}}");
+    }
+    
+    //Phasae 3: re-compile the element with bind-polymer directive
+    element.attr("pseudo-name", elementNameRegister);
+    element.attr("bind-polymer", "");
+    element.on("$destroy", removeElement);
+    element.removeAttr("register-variable");
+    $compile(element)(scope);
+  }
+  return {
+    link: link
+  };
+}]);
