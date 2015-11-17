@@ -15,7 +15,6 @@ app.controller("myController", ["$scope", function($scope){
   $scope.disconnect = function(data) {
     var element = $scope.__binding.inputs[data.inputElement].element;
     element.scope().__disconnectAttributes(data.outputElement, data.outputAttr, data.inputElement, data.inputAttr);
-  }
-
+  };
 }]);
 
