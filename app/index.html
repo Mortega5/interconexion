@@ -62,6 +62,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <div id="container" class="horizontal center-justified layout">
       <div >
         <input-text  register-variable></input-text>
+        <input-text  register-variable></input-text>
+        <input-text  register-variable></input-text>
         <my-list  register-variable></my-list>
 
         <input-text-button register-variable></input-text-button>
@@ -75,7 +77,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <br>
     <hr>
 
-    <p register-variable>Lista de atributos monitorizados</p>
+    <p>Lista de atributos monitorizados</p>
 
     <span>Elemento que proporciona datos </span><select name="listOutput" ng-model="data.outputElement">
     <option value="">Seleciona el dato a conectar</option>
@@ -90,7 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
     <br><br>
 
-    <span>Elemento que proporciona datos </span><select name="listInput" ng-model="data.inputElement">
+    <span>Elemento que consume datos </span><select name="listInput" ng-model="data.inputElement">
     <option value="">Seleciona el dato a conectar</option>
     <option ng-repeat="element in __binding.inputs._toList()">{{element.name}}</option>
     </select>

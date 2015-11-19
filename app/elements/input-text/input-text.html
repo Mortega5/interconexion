@@ -22,6 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <span class="paper-font-body2">Input de texto</span>
     <!-- Listens for "input" event and sets text to <input>.value -->
     <input id="input" class="paper-font-body2" value="{{text::input}}">
+    <p>{{test}}</p>
   </template>
 
   <script>
@@ -35,13 +36,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           text: {
             type: String,
             reflectToAttribute: true,
+            notify: true
+          },
+          test: {
+            type: String,
+            reflectToAttribute: true,
             notify: true,
-            observer: "_sendData"
+            value: "hola"
           },
           inputs: {
            type: Object,
            readOnly: true,
-           value: {}
+           value: {test: {type: "String", description: "brief description"}},
           },
           outputs: {
             type: Object,
@@ -50,7 +56,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
         _sendData: function (newValue, oldValue) {
           this.fire("evento-prueba",{newValue: newValue}); 
-        }
+        },
       });
     })();
   </script>

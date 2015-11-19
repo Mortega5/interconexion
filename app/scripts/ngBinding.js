@@ -30,7 +30,8 @@ angular.module("ngBinding", ["ng"]).
      */
 factory("BindingFactory", function () {
 
-
+  /*** AUXILIAR FUNCTION ****/
+  // Check if `this` is empty
   var _isEmpty = function () {
     if (this === null) {
       return true;
@@ -53,6 +54,7 @@ factory("BindingFactory", function () {
 
     return true;
   };
+  // Return an array with all the elements in an Object (input or output). it doesnt return _ and $ functions.
   var _toList = function () {
     var list = [];
     for (var key in this) {
@@ -62,6 +64,7 @@ factory("BindingFactory", function () {
     }
     return list;
   };
+  // Return the type of a couple element-attr
   var _getTypeOfAttr = function (element, attrToSearch) {
     for (var key in this) {
       if (key.charAt(0) !== "_" && this[key].element === element && key.charAt(0) !== "$") {
@@ -73,6 +76,14 @@ factory("BindingFactory", function () {
       }
     }
   };
+  /** Return the index of the couple from-fromAttr in the list
+    *
+    *@params {string} from The element searched
+    *@params {string} fromAttr The searched attribute of the element
+    *@params {string} list List where it'll search the couple from-fromAttr
+    *
+    *@return {integer} i Index of the couple from-fromAttr in the list
+    */
   var _searchBinding = function (from, fromAttr, list) {
     for (var i = 0; i < list.length; i++) {
       if (list[i].elementName === from && list[i].toAttr === fromAttr) {
@@ -150,7 +161,6 @@ factory("BindingFactory", function () {
        * The component are added in the correct structure when the HTML tag that reference this componente has the directives
        * `bind-polymer` and `register-variable`
        */
-
   var BindingFactory = function () {
     this.inputs = {
       _isEmpty: _isEmpty,
@@ -264,6 +274,9 @@ factory("BindingFactory", function () {
     if (indexInputs > -1 || indexOutputs > -1) {
       throw "Error: trying connect a consumer and a producer that they are already connected";
     }
+    if (producer === consumer || this._checkLoops(producer, consumer)) {
+      throw "Error: producer and consumer cannot be connected because they cause a loop";
+    }
     // Add to information about the producer to the consumer 
     this.inputs[consumer].consumeOf.push({
       elementName: producer,
@@ -278,7 +291,6 @@ factory("BindingFactory", function () {
       myAttr: producerAttr
     });
   };
-
   /**
       * @ngdoc function
       * @name ngBinding.BindingFactory#_removeBindingInfo
@@ -305,33 +317,91 @@ factory("BindingFactory", function () {
 
       // Remove binding for input element
       index = _searchBinding(connectedName, connectedAttr, this.inputs[elementName].consumeOf);
-      deletedElement = this.inputs[elementName].consumeOf.splice(index, 1);
+      if (index > -1){
+        deletedElement = this.inputs[elementName].consumeOf.splice(index, 1);
 
-      // Remove watcher for input element
-      inputElement = angular.element(document.querySelector("[pseudo-name=" + elementName + "]"));
-      watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
-      inputElement.scope().$$watchers.splice(watcherIndex, 1);
+        // Remove watcher for input element
+        inputElement = angular.element(document.querySelector("[pseudo-name=" + elementName + "]"));
+        watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
+        inputElement.scope().$$watchers.splice(watcherIndex, 1);
 
-      // Remove binding for output element
-      index = _searchBinding(elementName, elementAttr, this.outputs[connectedName].produceTo);
-      this.outputs[connectedName].produceTo.splice(index, 1);
-
-      // If the first element is a outputs
-    } else if (this.outputs[elementName]) {
+        // Remove binding for output element
+        index = _searchBinding(elementName, elementAttr, this.outputs[connectedName].produceTo);
+        this.outputs[connectedName].produceTo.splice(index, 1);
+      }
+    }
+    // If the first element is a outputs
+    if (this.outputs[elementName]) {
       // Remove binding for input element
       index = _searchBinding(elementName, elementAttr, this.inputs[connectedName].consumeOf);
-      deletedElement = this.inputs[connectedName].consumeOf.splice(index, 1);
+      if (index > -1){
 
-      // Remove watcher for input element
-      inputElement = angular.element(document.querySelector("[pseudo-name=" + connectedName + "]"));
-      watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
-      inputElement.scope().$$watchers.splice(watcherIndex, 1);
+        deletedElement = this.inputs[connectedName].consumeOf.splice(index, 1);
 
-      // Remove binding for output element
-      index = _searchBinding(connectedName, connectedAttr, this.outputs[elementName].produceTo);
-      this.outputs[elementName].produceTo.splice(index, 1);
+        // Remove watcher for input element
+        inputElement = angular.element(document.querySelector("[pseudo-name=" + connectedName + "]"));
+        watcherIndex = inputElement.scope().$$watchers.indexOf(deletedElement[0].watcher);
+        inputElement.scope().$$watchers.splice(watcherIndex, 1);
+
+        // Remove binding for output element
+        index = _searchBinding(connectedName, connectedAttr, this.outputs[elementName].produceTo);
+        this.outputs[elementName].produceTo.splice(index, 1);
+      }
     }
   };
+  /**
+    * @ngdoc function
+    * @name ngBinding.BindingFactory#_checkLoops
+    * @methodOf ngBinding.BindingFactory
+    * @description
+    * 
+    * Check if the consumer and the producer are directly or indirectly binding.
+    *
+    * Example:
+    * 
+    * If B produce to C and C produce to A, and we want binding A to B we cant. It is not permited
+    * because then A produce to A, B produce to C and C produce to A. That may causes a loop with
+    * infinite iterations.
+    *
+		* @param {string} producer The element pseudo-name `productor` in the relasionsion that we want to check.
+		* @param {string} consumer The element pseudo-name `consumer` in the relasionsion that we want to check.
+    * 
+    * @return {boolean} True if the new binding will cause a loop, else False.
+    */
+  BindingFactory.prototype._checkLoops = function(producer, consumer) {
+    var nested = false;
+    var _binding = _binding || this;
+    var firstNode, list;
+    var _isProducerTo = function(producer, consumer) {
+      var isProducer  = false;
+      var listProducer = _binding.outputs[producer] ? _binding.outputs[producer].produceTo : [];
+      for (var i = 0;i<listProducer.length && !isProducer;i++) {
+        if (listProducer[i].elementName == consumer) {
+          isProducer = true;
+        }
+      }
+      return isProducer;
+    };
+
+    if (_isProducerTo(consumer, producer) || _isProducerTo(producer, consumer)){
+      nested = true;
+    }
+    else if (!firstNode) {
+      firstNode = producer;
+       list = _binding.outputs[consumer] ? _binding.outputs[consumer].produceTo : [];
+
+      for (var i = 0; i < list.length && !nested;i++) {
+        nested = _binding._checkLoops(list[i].elementName, firstNode);
+      }
+    } else {
+       list = _binding.outputs[consumer] ? _binding.outputs[consumer].produceTo : [];
+      for (var i = 0; i < list.length && !nested;i++) {
+        nested = _binding._checkLoops(list[i].elementName, firstNode);
+      }
+    }
+    return nested;
+  };
+
   return BindingFactory;
 }).
 /**
@@ -495,7 +565,18 @@ directive("bindPolymer", ["$parse", function ($parse) {
 }]).
 
 directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $compile) {
-
+  Object.deepExtend = function(destination, source) {
+    for (var property in source) {
+      if (typeof source[property] === "object" &&
+          source[property] !== null ) {
+        destination[property] = destination[property] || {};
+        Object.deepExtend(destination[property], source[property]);
+      } else {
+        destination[property] = source[property];
+      }
+    }
+    return destination;
+  };
   // TODO filtros para los elementos elegibles (¿delegar en el usuario?)
   function link(scope, element) {
     var isEmpty = function (obj) {
@@ -531,7 +612,7 @@ directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $
       }
     };
     scope.__addAttribute = function (objetive, attribute, bindingAttrName) {
-      
+
       //FUTURE check complex type through higher abstraction
       //Check type of element 
       var inputType = scope.__binding.inputs._getTypeOfAttr(objetive, attribute);
@@ -539,20 +620,22 @@ directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $
       if (inputType !== outputType) {
         throw "Input and output type are not equals: " + inputType + " vs " + outputType;
       }
-      
+
       //TODO comprobar bucles
-      
+
       // Add information to __binding variable
       var producer = scope.__blackboard._getElementByBindingAttr(bindingAttrName).name;
       var consumer = objetive.attr("pseudo-name");
-
+      if (producer === consumer || scope.__binding._checkLoops(producer, consumer)) {
+        throw "Error: producer and consumer cannot be connected because they cause a loop";
+      }
       // Interpolate the new information and re-compile with the binding.
       var interpolationName = "{{" + bindingAttrName + "}}";
       objetive.attr(attribute, interpolationName);
       var injector = objetive.injector();
       var $compile = injector.get("$compile");
       $compile(objetive)(objetive.scope());
-      
+
       // NOTE we used the first watcher of the scope, we assume that it is the watcher of the binding
       var watcher = objetive.scope().$$watchers[0];
       scope.__binding._addBindingInfo(producer, attribute, consumer, bindingAttrName.split("_")[0], watcher);
@@ -572,7 +655,7 @@ directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $
         });
       }
     };
-    
+
     var removeElement = function () {
       //Call remove of scope.__binding.remove(element)
       scope.__binding._removeElement(this.getAttribute("pseudo-name"));
@@ -580,7 +663,7 @@ directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $
       scope.__blackboard._removeElement(this.getAttribute("pseudo-name"));
     };
     var polymerElement = element[0];
-    
+
     /* 1) Storages data about inputs and outputs in the binding variable */
 
     // new pseudo-name element
@@ -588,7 +671,7 @@ directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $
     // get the number of the same element there are in the dashboard
     var nElement = getMe(polymerElement);
     elementNameRegister += "_" + nElement;
-    
+
     if (!polymerElement.properties || !polymerElement.properties.inputs || !polymerElement.properties.outputs) {
       throw "The element has not inputs or outputs properties";
     }
@@ -636,7 +719,8 @@ directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $
     //2) Add new biniding information in the blackboard 
 
     // Phase 1: register variables in the blackboard to know who is producing data and where it does.
-    var outputs = polymerElement.properties.outputs.value;
+    var outputs = {};
+    Object.deepExtend(outputs, polymerElement.properties.outputs.value);
     var bindingAttr;
     if (!isEmpty(outputs)) {
       $rootScope.__blackboard[elementNameRegister] = {
@@ -659,7 +743,7 @@ directive("registerVariable", ["$rootScope", "$compile", function ($rootScope, $
       $rootScope.bindingAttr = "";
       element.attr(attr, "{{" + bindingAttr + "}}");
     }
-    
+
     //Phasae 3: re-compile the element with bind-polymer directive
     element.attr("pseudo-name", elementNameRegister);
     element.attr("bind-polymer", "");
