@@ -1,0 +1,9 @@
+{
+    "jscodehints.detectedExclusions": [
+        "/home/miguel/interconexion/app/bower_components/prism/components/prism-haskell.min.js",
+        "/home/miguel/interconexion/detectarBucles.js",
+        "/home/miguel/interconexion/app/bower_components/angular/angular.js",
+        "/home/miguel/interconexion/app/scripts/ngBinding.js",
+        "/home/miguel/interconexion/app/bower_components/platinum-sw/test/platinum-sw-import-script/post-message-echo.js"
+    ]
+}

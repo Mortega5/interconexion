@@ -2,3 +2,8 @@ node_modules
 dist
 .tmp
 *.*~
+comando
+docs
+bower_elements
+build
+*.min.*

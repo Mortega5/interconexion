@@ -12,7 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <html>
 <head>
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <title>my-greeting-basic</title>
+  <title>input-text-basic</title>
 
   <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
@@ -20,28 +20,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../bower_components/test-fixture/test-fixture.html">
 
   <!-- Import the element to test -->
-  <link rel="import" href="../elements/my-greeting/my-greeting.html">
+  <link rel="import" href="../elements/input-text/input-text.html">
 
 </head>
 <body>
 
   <test-fixture id="basic">
     <template>
-      <my-greeting></my-greeting>
+      <input-text></input-text>
     </template>
   </test-fixture>
 
   <script>
 
-    suite('my-greeting tests', function() {
-      var greeting, header;
+    suite('input-text tests', function() {
+      var text, header;
 
       setup(function() {
-        greeting = fixture('basic');
+        text = fixture('basic');
       });
 
       test('Welcome!', function() {
-        header = greeting.querySelector('h2');
+        header = text.querySelector('h2');
         assert.equal(header.textContent, 'Welcome!');
       });
 

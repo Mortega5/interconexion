@@ -1,0 +1,53 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="fb-publicator">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      textarea {
+        margin: 5px;
+        width: 300px;
+        height: 60px;
+      }
+    </style>
+    <div>
+     <p> Texto de entrada a publicar </p>
+      <textarea id="textarea" value="{{text}}"></textarea>
+      <button on-click="publicar">Publish</button>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        is: 'fb-publicator',
+        properties: {
+          text: {
+            type: String,
+            notify: true,
+            value: "",
+            reflectToAttribute: true
+          },
+          inputs: {
+            type: "Object",
+            value: {text: {type: "String", description: "brief description"}},
+            readOnly: true
+          },
+          outputs: {
+            type: "Object",
+            value: {}
+          },
+        },
+        publicar: function(){
+          console.log("Se va a publicar: " + this.$.textarea.value)
+        }
+
+      });
+    })();
+  </script>
+
+</dom-module>

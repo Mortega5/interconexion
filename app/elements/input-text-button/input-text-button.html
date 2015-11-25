@@ -1,0 +1,62 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="input-text-button">
+  <template>
+    <style include="shared-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <br>
+<!--    <h2 class="page-title"><span>{{text}}</span></h2>-->
+    <span class="paper-font-body2">Input de texto</span>
+    <!-- Listens for "input" event and sets text to <input>.value -->
+    <input id="input" class="paper-font-body2">
+    <button on-click="_sendText">Send</button>
+  </template>
+
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'input-text-button',
+
+        properties: {
+          text: {
+            type: String,
+            reflectToAttribute: true,
+            notify: true,
+            observer: "_sendData"
+          },
+          inputs: {
+           type: Object,
+           readOnly: true,
+           value: {}
+          },
+          outputs: {
+            type: Object,
+            value: {text: {type: "String", description: "brief description"}}
+          }
+        },
+        _sendData: function (newValue, oldValue) {
+          this.fire("evento-prueba",{newValue: newValue}); 
+        },
+        _sendText: function(){
+          this.text = this.$.input.value;
+        }
+      });
+    })();
+  </script>
+
+</dom-module>
